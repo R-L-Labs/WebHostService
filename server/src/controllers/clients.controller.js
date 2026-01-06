@@ -150,6 +150,7 @@ export const createClient = async (req, res, next) => {
       website,
       status,
       packageId,
+      interestedPackages,
       notes,
     } = req.body;
 
@@ -170,6 +171,7 @@ export const createClient = async (req, res, next) => {
         website,
         status: status || 'PROSPECT',
         packageId: packageId || null,
+        interestedPackages,
         notes,
       },
       include: {

@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
  */
 export const submitInquiry = async (req, res, next) => {
   try {
-    const { name, email, phone, businessName, message } = req.body;
+    const { name, email, phone, businessName, interestedPackage, message } = req.body;
 
     // Validate required fields
     if (!name || !email || !message) {
@@ -25,6 +25,7 @@ export const submitInquiry = async (req, res, next) => {
         email: email.toLowerCase().trim(),
         phone,
         businessName,
+        interestedPackage,
         message,
         status: 'NEW',
       },
@@ -143,15 +144,62 @@ export const updateInquiry = async (req, res, next) => {
       });
     }
 
+    // Get the current inquiry first
+    const currentInquiry = await prisma.inquiry.findUnique({
+      where: { id },
+    });
+
+    if (!currentInquiry) {
+      return res.status(404).json({
+        success: false,
+        message: 'Inquiry not found',
+      });
+    }
+
+    // Update the inquiry status
     const inquiry = await prisma.inquiry.update({
       where: { id },
       data: { status },
     });
 
+    let client = null;
+
+    // If status is being changed to CONVERTED, create a client automatically
+    if (status === 'CONVERTED' && currentInquiry.status !== 'CONVERTED') {
+      // Check if a client with this email already exists
+      const existingClient = await prisma.client.findUnique({
+        where: { email: inquiry.email },
+      });
+
+      if (!existingClient) {
+        // Create a new client from the inquiry data
+        client = await prisma.client.create({
+          data: {
+            businessName: inquiry.businessName || `${inquiry.name}'s Business`,
+            contactName: inquiry.name,
+            email: inquiry.email,
+            phone: inquiry.phone,
+            status: 'PROSPECT',
+            notes: `Converted from inquiry on ${new Date().toLocaleDateString()}.\n\nOriginal message:\n${inquiry.message}`,
+          },
+          include: {
+            package: true,
+          },
+        });
+      } else {
+        client = existingClient;
+      }
+    }
+
     res.status(200).json({
       success: true,
-      message: 'Inquiry updated successfully',
-      data: { inquiry },
+      message: status === 'CONVERTED' && client
+        ? 'Inquiry converted and client created successfully'
+        : 'Inquiry updated successfully',
+      data: {
+        inquiry,
+        client, // Will be null if not converted or client already existed
+      },
     });
   } catch (error) {
     next(error);

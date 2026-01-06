@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '../../components/ui/button';
@@ -7,21 +7,49 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { contactFormSchema } from '../../utils/validators';
-import { inquiriesAPI } from '../../utils/api';
+import { inquiriesAPI, packagesAPI } from '../../utils/api';
 import { toast } from 'sonner';
-import { Mail, Phone, MapPin } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [selectedPackages, setSelectedPackages] = useState([]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm({
     resolver: zodResolver(contactFormSchema),
   });
+
+  const togglePackage = (packageName) => {
+    setSelectedPackages(prev => {
+      const newSelection = prev.includes(packageName)
+        ? prev.filter(p => p !== packageName)
+        : [...prev, packageName];
+
+      // Update the form value
+      setValue('interestedPackage', newSelection.join(', '));
+      return newSelection;
+    });
+  };
+
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const fetchPackages = async () => {
+    try {
+      const { data } = await packagesAPI.getAll();
+      setPackages(data.data.packages || []);
+    } catch (error) {
+      console.error('Error fetching packages:', error);
+    }
+  };
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
@@ -29,6 +57,7 @@ export default function ContactPage() {
       await inquiriesAPI.submit(data);
       toast.success('Thank you for your inquiry! We\'ll get back to you soon.');
       reset();
+      setSelectedPackages([]);
     } catch (error) {
       console.error('Error submitting inquiry:', error);
       toast.error(error.response?.data?.message || 'Failed to submit inquiry. Please try again.');
@@ -139,6 +168,52 @@ export default function ContactPage() {
                         placeholder="Your Business Name"
                         className="mt-1"
                       />
+                    </div>
+
+                    <div>
+                      <Label>Packages You're Interested In</Label>
+                      <input type="hidden" {...register('interestedPackage')} />
+                      <div className="mt-2 space-y-2">
+                        {packages.map((pkg) => (
+                          <label
+                            key={pkg.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                              selectedPackages.includes(pkg.name)
+                                ? 'border-primary-500 bg-primary-50'
+                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedPackages.includes(pkg.name)}
+                              onChange={() => togglePackage(pkg.name)}
+                              className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                            />
+                            <div className="flex-1">
+                              <span className="font-medium">{pkg.name}</span>
+                              <span className="text-gray-500 ml-2">
+                                - ${parseFloat(pkg.price).toLocaleString()}
+                              </span>
+                            </div>
+                          </label>
+                        ))}
+                        <label
+                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                            selectedPackages.includes('Not sure yet')
+                              ? 'border-primary-500 bg-primary-50'
+                              : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedPackages.includes('Not sure yet')}
+                            onChange={() => togglePackage('Not sure yet')}
+                            className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                          />
+                          <span className="font-medium">Not sure yet</span>
+                        </label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Select all that apply (optional)</p>
                     </div>
 
                     <div>

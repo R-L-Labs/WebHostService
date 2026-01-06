@@ -4,18 +4,30 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { clientsAPI, paymentsAPI } from '../../utils/api';
+import { clientsAPI, paymentsAPI, packagesAPI } from '../../utils/api';
 import { getStatusColor, formatDate, formatDateTime, formatPrice, getPaymentMethodLabel } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
   X, ExternalLink, Mail, Phone, Building2, Package, FileText, Calendar,
-  DollarSign, Plus, Trash2, CreditCard
+  DollarSign, Plus, Trash2, CreditCard, RefreshCw
 } from 'lucide-react';
+
+const CLIENT_STATUSES = [
+  { value: 'PROSPECT', label: 'Prospect', description: 'Potential client' },
+  { value: 'ACTIVE', label: 'Active', description: 'Currently working with' },
+  { value: 'INACTIVE', label: 'Inactive', description: 'Not currently active' },
+  { value: 'CANCELLED', label: 'Cancelled', description: 'No longer a client' },
+];
 
 export default function ClientsPage() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [packages, setPackages] = useState([]);
+  const [updatingPackage, setUpdatingPackage] = useState(false);
+  const [selectedPackages, setSelectedPackages] = useState([]);
 
   // Payments state
   const [payments, setPayments] = useState([]);
@@ -36,19 +48,34 @@ export default function ClientsPage() {
 
   useEffect(() => {
     fetchClients();
+    fetchPackages();
   }, []);
 
-  const fetchClients = async () => {
+  const fetchPackages = async () => {
+    try {
+      const { data } = await packagesAPI.getAll();
+      setPackages(data.data.packages || []);
+    } catch (error) {
+      console.error('Error fetching packages:', error);
+    }
+  };
+
+  const fetchClients = async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
     try {
       const { data } = await clientsAPI.getAll({ limit: 20, page: 1 });
       setClients(data.data.clients || []);
+      if (isRefresh) toast.success('Clients refreshed');
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast.error('Failed to load clients');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
+
+  const handleRefresh = () => fetchClients(true);
 
   const fetchPayments = async (clientId) => {
     setLoadingPayments(true);
@@ -67,6 +94,9 @@ export default function ClientsPage() {
   const openClientModal = (client) => {
     setSelectedClient(client);
     fetchPayments(client.id);
+    // Initialize selected packages from client's interestedPackages
+    const interested = client.interestedPackages ? client.interestedPackages.split(', ').filter(p => p) : [];
+    setSelectedPackages(interested);
   };
 
   const closeClientModal = () => {
@@ -75,6 +105,7 @@ export default function ClientsPage() {
     setPaymentSummary({ totalPaid: 0, totalPending: 0, count: 0 });
     setShowAddPayment(false);
     resetPaymentForm();
+    setSelectedPackages([]);
   };
 
   const resetPaymentForm = () => {
@@ -128,6 +159,57 @@ export default function ClientsPage() {
     }
   };
 
+  const handleStatusChange = async (newStatus) => {
+    if (!selectedClient || newStatus === selectedClient.status) return;
+
+    setUpdatingStatus(true);
+    try {
+      await clientsAPI.update(selectedClient.id, { status: newStatus });
+      toast.success(`Client status updated to ${newStatus}`);
+
+      // Update local state
+      const updatedClient = { ...selectedClient, status: newStatus };
+      setSelectedClient(updatedClient);
+      setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
+    } catch (error) {
+      console.error('Error updating client status:', error);
+      toast.error('Failed to update status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const togglePackage = async (packageName) => {
+    if (!selectedClient) return;
+
+    const newSelection = selectedPackages.includes(packageName)
+      ? selectedPackages.filter(p => p !== packageName)
+      : [...selectedPackages, packageName];
+
+    setSelectedPackages(newSelection);
+    setUpdatingPackage(true);
+
+    try {
+      const interestedPackages = newSelection.join(', ');
+      await clientsAPI.update(selectedClient.id, { interestedPackages });
+
+      const updatedClient = {
+        ...selectedClient,
+        interestedPackages,
+      };
+
+      setSelectedClient(updatedClient);
+      setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
+    } catch (error) {
+      console.error('Error updating client packages:', error);
+      toast.error('Failed to update packages');
+      // Revert selection on error
+      setSelectedPackages(selectedPackages);
+    } finally {
+      setUpdatingPackage(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading clients...</div>;
   }
@@ -139,6 +221,10 @@ export default function ClientsPage() {
           <h2 className="text-2xl font-bold">Clients</h2>
           <p className="text-gray-600">Manage your client base</p>
         </div>
+        <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
       <Card>
@@ -154,7 +240,7 @@ export default function ClientsPage() {
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Business</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Contact</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Email</th>
-                  <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Package</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Packages</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Status</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Created</th>
                 </tr>
@@ -178,7 +264,7 @@ export default function ClientsPage() {
                       </td>
                       <td className="py-3 px-4">{client.contactName}</td>
                       <td className="py-3 px-4 text-sm text-gray-600">{client.email}</td>
-                      <td className="py-3 px-4 text-sm">{client.package?.name || 'None'}</td>
+                      <td className="py-3 px-4 text-sm">{client.interestedPackages || 'None'}</td>
                       <td className="py-3 px-4">
                         <Badge className={getStatusColor(client.status)}>{client.status}</Badge>
                       </td>
@@ -202,9 +288,21 @@ export default function ClientsPage() {
             <div className="flex justify-between items-start p-6 border-b">
               <div>
                 <h3 className="text-xl font-semibold">{selectedClient.businessName}</h3>
-                <Badge className={`mt-2 ${getStatusColor(selectedClient.status)}`}>
-                  {selectedClient.status}
-                </Badge>
+                <div className="flex items-center gap-3 mt-2">
+                  <select
+                    value={selectedClient.status}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    disabled={updatingStatus}
+                    className={`text-sm font-medium px-3 py-1 rounded-full border-0 cursor-pointer ${getStatusColor(selectedClient.status)}`}
+                  >
+                    {CLIENT_STATUSES.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                  {updatingStatus && <span className="text-sm text-gray-500">Updating...</span>}
+                </div>
               </div>
               <button
                 onClick={closeClientModal}
@@ -293,20 +391,40 @@ export default function ClientsPage() {
 
               {/* Package Information */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                  Package Details
-                </h4>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <Package className="w-5 h-5 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Current Package</p>
-                    <p className="font-medium">
-                      {selectedClient.package?.name || 'No package assigned'}
-                    </p>
-                  </div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    Interested Packages
+                  </h4>
+                  {updatingPackage && <span className="text-sm text-gray-500">Saving...</span>}
                 </div>
+                <div className="space-y-2">
+                  {packages.map((pkg) => (
+                    <label
+                      key={pkg.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        selectedPackages.includes(pkg.name)
+                          ? 'border-primary-500 bg-primary-50'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPackages.includes(pkg.name)}
+                        onChange={() => togglePackage(pkg.name)}
+                        disabled={updatingPackage}
+                        className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                      />
+                      <div className="flex items-center gap-3">
+                        <Package className="w-5 h-5 text-gray-600" />
+                        <div>
+                          <span className="font-medium">{pkg.name}</span>
+                          <span className="text-gray-500 ml-2">- {formatPrice(pkg.price)}</span>
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Select all packages the client is interested in</p>
               </div>
 
               {/* Payments Section */}
