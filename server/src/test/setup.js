@@ -3,8 +3,12 @@ import { mockPrisma, resetMocks } from './mocks/prisma.js';
 
 // Mock @prisma/client module
 vi.mock('@prisma/client', () => {
+  // Create a constructor function that returns mockPrisma
+  const MockPrismaClient = function () {
+    return mockPrisma;
+  };
   return {
-    PrismaClient: vi.fn(() => mockPrisma),
+    PrismaClient: MockPrismaClient,
   };
 });
 
