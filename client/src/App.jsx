@@ -15,6 +15,7 @@ import LoginPage from './pages/admin/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import ClientsPage from './pages/admin/ClientsPage';
 import InquiriesPage from './pages/admin/InquiriesPage';
+import UsersPage from './pages/admin/UsersPage';
 
 // Components
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -47,6 +48,7 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="inquiries" element={<InquiriesPage />} />
+          <Route path="users" element={<UsersPage />} />
         </Route>
 
         {/* 404 Redirect */}

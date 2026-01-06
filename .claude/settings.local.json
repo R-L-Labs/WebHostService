@@ -7,7 +7,9 @@
       "Bash(npm create:*)",
       "Bash(npx tailwindcss init -p)",
       "Bash(npm run prisma:generate:*)",
-      "Bash(psql:*)"
+      "Bash(psql:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(npx prisma generate:*)"
     ]
   }
 }

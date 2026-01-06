@@ -41,8 +41,44 @@ model Client {
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
   package      Package?     @relation(fields: [packageId], references: [id], onDelete: SetNull)
+  payments     Payment[]
 
   @@map("clients")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  clientId      String        @map("client_id")
+  amount        Decimal       @db.Decimal(10, 2)
+  description   String?
+  paymentDate   DateTime      @map("payment_date")
+  paymentMethod PaymentMethod @default(OTHER) @map("payment_method")
+  status        PaymentStatus @default(PENDING)
+  notes         String?       @db.Text
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum PaymentMethod {
+  CASH
+  CHECK
+  CREDIT_CARD
+  BANK_TRANSFER
+  PAYPAL
+  VENMO
+  ZELLE
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
 }
 
 enum ClientStatus {

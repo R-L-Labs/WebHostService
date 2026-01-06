@@ -24,6 +24,38 @@ async function main() {
 
   console.log('Admin user created:', adminUser.email);
 
+  // Create additional admin users
+  console.log('Creating additional admin users...');
+  const userPassword = await bcrypt.hash('Test123!', 10);
+
+  const nickUser = await prisma.user.upsert({
+    where: { email: 'nick@rl-labs.org' },
+    update: {},
+    create: {
+      email: 'nick@rl-labs.org',
+      password: userPassword,
+      firstName: 'Nick',
+      lastName: 'Admin',
+      role: 'ADMIN',
+    },
+  });
+
+  const shaneUser = await prisma.user.upsert({
+    where: { email: 'shane@rl-labs.org' },
+    update: {},
+    create: {
+      email: 'shane@rl-labs.org',
+      password: userPassword,
+      firstName: 'Shane',
+      lastName: 'Admin',
+      role: 'ADMIN',
+    },
+  });
+
+  console.log('Admin users created:');
+  console.log('- ', nickUser.email);
+  console.log('- ', shaneUser.email);
+
   // Create packages
   console.log('Creating packages...');
 
@@ -169,8 +201,13 @@ async function main() {
 
   console.log('\nDatabase seed completed successfully!');
   console.log('\n=== LOGIN CREDENTIALS ===');
-  console.log('Email:', adminUser.email);
-  console.log('Password: Admin123!');
+  console.log('Super Admin:');
+  console.log('  Email:', adminUser.email);
+  console.log('  Password: Admin123!');
+  console.log('\nAdmin Users:');
+  console.log('  Email:', nickUser.email);
+  console.log('  Email:', shaneUser.email);
+  console.log('  Password: Test123!');
   console.log('=========================\n');
 }
 

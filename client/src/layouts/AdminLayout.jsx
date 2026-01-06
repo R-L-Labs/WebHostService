@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { useAuthStore } from '../store/authStore';
 import { useUIStore } from '../store/uiStore';
-import { LayoutDashboard, Users, Mail, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Users, Mail, LogOut, Menu, X, UserCog } from 'lucide-react';
 
 export default function AdminLayout() {
   const location = useLocation();
@@ -14,6 +14,7 @@ export default function AdminLayout() {
     { label: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
     { label: 'Clients', path: '/admin/clients', icon: Users },
     { label: 'Inquiries', path: '/admin/inquiries', icon: Mail },
+    { label: 'Users', path: '/admin/users', icon: UserCog },
   ];
 
   const isActive = (path) => location.pathname === path;

@@ -52,8 +52,30 @@ export function getStatusColor(status) {
     QUALIFIED: 'bg-purple-100 text-purple-800',
     CONVERTED: 'bg-green-100 text-green-800',
     DISMISSED: 'bg-gray-100 text-gray-800',
+    // Payment statuses
+    PENDING: 'bg-yellow-100 text-yellow-800',
+    PAID: 'bg-green-100 text-green-800',
+    REFUNDED: 'bg-orange-100 text-orange-800',
+    FAILED: 'bg-red-100 text-red-800',
   };
   return statusColors[status] || 'bg-gray-100 text-gray-800';
+}
+
+/**
+ * Get payment method display name
+ */
+export function getPaymentMethodLabel(method) {
+  const methods = {
+    CASH: 'Cash',
+    CHECK: 'Check',
+    CREDIT_CARD: 'Credit Card',
+    BANK_TRANSFER: 'Bank Transfer',
+    PAYPAL: 'PayPal',
+    VENMO: 'Venmo',
+    ZELLE: 'Zelle',
+    OTHER: 'Other',
+  };
+  return methods[method] || method;
 }
 
 /**

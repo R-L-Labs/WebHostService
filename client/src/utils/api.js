@@ -74,4 +74,20 @@ export const packagesAPI = {
   getOne: (id) => api.get(`/packages/${id}`),
 };
 
+// Users API
+export const usersAPI = {
+  getAll: () => api.get('/users'),
+  getOne: (id) => api.get(`/users/${id}`),
+  resetPassword: (id, newPassword) => api.put(`/users/${id}/reset-password`, { newPassword }),
+};
+
+// Payments API
+export const paymentsAPI = {
+  getByClient: (clientId) => api.get(`/payments/client/${clientId}`),
+  getOne: (id) => api.get(`/payments/${id}`),
+  create: (data) => api.post('/payments', data),
+  update: (id, data) => api.put(`/payments/${id}`, data),
+  delete: (id) => api.delete(`/payments/${id}`),
+};
+
 export default api;

@@ -3,6 +3,8 @@ import authRoutes from './auth.routes.js';
 import clientsRoutes from './clients.routes.js';
 import inquiriesRoutes from './inquiries.routes.js';
 import packagesRoutes from './packages.routes.js';
+import usersRoutes from './users.routes.js';
+import paymentsRoutes from './payments.routes.js';
 
 const router = express.Router();
 
@@ -11,6 +13,8 @@ router.use('/auth', authRoutes);
 router.use('/clients', clientsRoutes);
 router.use('/inquiries', inquiriesRoutes);
 router.use('/packages', packagesRoutes);
+router.use('/users', usersRoutes);
+router.use('/payments', paymentsRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
