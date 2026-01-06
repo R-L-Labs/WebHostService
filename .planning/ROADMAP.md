@@ -51,12 +51,11 @@ Key work:
 **Goal**: Stronger authentication with proper password policies and client-side role checks
 **Depends on**: Phase 2 (tests should cover auth before modifying)
 **Research**: Unlikely (established patterns)
-**Plans**: TBD
+**Plans**: 2
 
 Key work:
-- Strengthen password requirements (12+ chars, complexity)
-- Add client-side role prop to ProtectedRoute component
-- Review and tighten any remaining security gaps
+- Plan 1: Create password validation utility with complexity rules (12+ chars, upper, lower, number, special)
+- Plan 2: Add allowedRoles prop to ProtectedRoute component
 
 ### Phase 4: Database Optimization
 **Goal**: Efficient queries with proper indexing
@@ -103,7 +102,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. API Validation | 3/3 | Complete | 2026-01-05 |
 | 2. Test Infrastructure | 3/3 | Complete | 2026-01-05 |
-| 3. Security Hardening | 0/TBD | Not started | - |
+| 3. Security Hardening | 1/2 | In progress | - |
 | 4. Database Optimization | 0/TBD | Not started | - |
 | 5. Code Quality | 0/TBD | Not started | - |
 | 6. Cleanup | 0/TBD | Not started | - |
