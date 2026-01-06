@@ -3,6 +3,7 @@ import { body } from 'express-validator';
 import { getUsers, getUser, resetPassword } from '../controllers/users.controller.js';
 import { protect, restrictTo } from '../middleware/auth.middleware.js';
 import { validate, validateUUID } from '../middleware/validate.middleware.js';
+import { validatePasswordStrength } from '../utils/validation.utils.js';
 
 const router = express.Router();
 
@@ -11,8 +12,13 @@ const resetPasswordValidation = [
   body('newPassword')
     .notEmpty()
     .withMessage('New password is required')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .custom((value) => {
+      const result = validatePasswordStrength(value);
+      if (!result.isValid) {
+        throw new Error(result.errors.join('. '));
+      }
+      return true;
+    }),
 ];
 
 // All routes are protected and restricted to SUPER_ADMIN
