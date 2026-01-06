@@ -1,0 +1,91 @@
+// This is your Prisma schema file for WebHostService
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String   @map("first_name")
+  lastName  String   @map("last_name")
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Client {
+  id           String       @id @default(uuid())
+  businessName String       @map("business_name")
+  contactName  String       @map("contact_name")
+  email        String       @unique
+  phone        String?
+  website      String?
+  status       ClientStatus @default(PROSPECT)
+  packageId    String?      @map("package_id")
+  notes        String?      @db.Text
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  package      Package?     @relation(fields: [packageId], references: [id], onDelete: SetNull)
+
+  @@map("clients")
+}
+
+enum ClientStatus {
+  PROSPECT
+  ACTIVE
+  INACTIVE
+  CANCELLED
+}
+
+model Inquiry {
+  id           String        @id @default(uuid())
+  name         String
+  email        String
+  phone        String?
+  businessName String?       @map("business_name")
+  message      String        @db.Text
+  status       InquiryStatus @default(NEW)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  @@map("inquiries")
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CONVERTED
+  DISMISSED
+}
+
+model Package {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String   @db.Text
+  price        Decimal  @db.Decimal(10, 2)
+  features     Json     // Array of feature strings
+  isActive     Boolean  @default(true) @map("is_active")
+  displayOrder Int      @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  clients      Client[]
+
+  @@map("packages")
+}
