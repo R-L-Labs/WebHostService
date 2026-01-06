@@ -39,16 +39,13 @@ Key work:
 ### Phase 2: Test Infrastructure
 **Goal**: Vitest configured with tests covering critical authentication and payment paths
 **Depends on**: Phase 1
-**Research**: Likely (Vitest ESM setup with Express)
-**Research topics**: Vitest configuration for backend testing, mocking Prisma, testing Express routes
-**Plans**: TBD
+**Research**: Level 1 (Quick - Vitest ESM setup is straightforward)
+**Plans**: 3
 
 Key work:
-- Install and configure Vitest for server
-- Write tests for jwt.utils.js (token generation/verification)
-- Write tests for password.utils.js (hashing/comparison)
-- Write tests for auth.controller.js (login flow)
-- Write tests for payments.controller.js (calculations)
+- Plan 1: Vitest setup + JWT utility tests (2 tasks)
+- Plan 2: Password utility tests + Prisma mock + Auth controller tests (3 tasks)
+- Plan 3: Payments controller tests + Phase completion (3 tasks)
 
 ### Phase 3: Security Hardening
 **Goal**: Stronger authentication with proper password policies and client-side role checks
@@ -105,7 +102,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. API Validation | 3/3 | Complete | 2026-01-05 |
-| 2. Test Infrastructure | 0/TBD | Not started | - |
+| 2. Test Infrastructure | 0/3 | Ready to execute | - |
 | 3. Security Hardening | 0/TBD | Not started | - |
 | 4. Database Optimization | 0/TBD | Not started | - |
 | 5. Code Quality | 0/TBD | Not started | - |
