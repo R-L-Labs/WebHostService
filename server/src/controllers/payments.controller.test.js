@@ -100,4 +100,133 @@ describe('payments.controller', () => {
       expect(responseData.data.summary.count).toBe(4);
     });
   });
+
+  describe('createPayment', () => {
+    it('should return 400 if clientId missing', async () => {
+      mockReq.body = { amount: '100.00', paymentDate: '2024-01-01' };
+
+      await createPayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Client ID, amount, and payment date are required',
+      });
+    });
+
+    it('should return 400 if amount missing', async () => {
+      mockReq.body = { clientId: 'test-uuid', paymentDate: '2024-01-01' };
+
+      await createPayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should return 400 if paymentDate missing', async () => {
+      mockReq.body = { clientId: 'test-uuid', amount: '100.00' };
+
+      await createPayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should return 404 if client not found', async () => {
+      mockReq.body = { clientId: 'nonexistent-uuid', amount: '100.00', paymentDate: '2024-01-01' };
+      mockPrisma.client.findUnique.mockResolvedValue(null);
+
+      await createPayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Client not found',
+      });
+    });
+
+    it('should create payment with correct data', async () => {
+      mockReq.body = {
+        clientId: 'test-uuid',
+        amount: '99.99',
+        paymentDate: '2024-01-15',
+        description: 'Test payment',
+      };
+      mockPrisma.client.findUnique.mockResolvedValue({ id: 'test-uuid' });
+      mockPrisma.payment.create.mockResolvedValue({
+        id: 'payment-uuid',
+        clientId: 'test-uuid',
+        amount: '99.99',
+        paymentDate: new Date('2024-01-15'),
+        status: 'PENDING',
+      });
+
+      await createPayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(201);
+      expect(mockPrisma.payment.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          clientId: 'test-uuid',
+          amount: 99.99, // parseFloat converts string to number
+          description: 'Test payment',
+        }),
+      });
+    });
+  });
+
+  describe('updatePayment', () => {
+    it('should return 404 if payment not found', async () => {
+      mockReq.params = { id: 'nonexistent-uuid' };
+      mockReq.body = { amount: '150.00' };
+      mockPrisma.payment.findUnique.mockResolvedValue(null);
+
+      await updatePayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(404);
+      expect(mockRes.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Payment not found',
+      });
+    });
+
+    it('should update only provided fields', async () => {
+      mockReq.params = { id: 'payment-uuid' };
+      mockReq.body = { amount: '200.00', status: 'PAID' };
+      mockPrisma.payment.findUnique.mockResolvedValue({
+        id: 'payment-uuid',
+        amount: '100.00',
+        status: 'PENDING',
+      });
+      mockPrisma.payment.update.mockResolvedValue({
+        id: 'payment-uuid',
+        amount: '200.00',
+        status: 'PAID',
+      });
+
+      await updatePayment(mockReq, mockRes, mockNext);
+
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+      expect(mockPrisma.payment.update).toHaveBeenCalledWith({
+        where: { id: 'payment-uuid' },
+        data: {
+          amount: 200, // parseFloat converts
+          status: 'PAID',
+        },
+      });
+    });
+
+    it('should handle amount conversion correctly', async () => {
+      mockReq.params = { id: 'payment-uuid' };
+      mockReq.body = { amount: '99.99' };
+      mockPrisma.payment.findUnique.mockResolvedValue({ id: 'payment-uuid' });
+      mockPrisma.payment.update.mockResolvedValue({ id: 'payment-uuid', amount: '99.99' });
+
+      await updatePayment(mockReq, mockRes, mockNext);
+
+      expect(mockPrisma.payment.update).toHaveBeenCalledWith({
+        where: { id: 'payment-uuid' },
+        data: {
+          amount: 99.99,
+        },
+      });
+    });
+  });
 });
