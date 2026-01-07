@@ -56,8 +56,8 @@ export const getInquiries = async (req, res, next) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Build where clause
-    const where = {};
+    // Build where clause - exclude soft-deleted records
+    const where = { deletedAt: null };
 
     // Add status filter
     if (status && status !== 'ALL') {
@@ -73,7 +73,7 @@ export const getInquiries = async (req, res, next) => {
         orderBy: { createdAt: 'desc' },
       }),
       prisma.inquiry.count({ where }),
-      prisma.inquiry.count({ where: { status: 'NEW' } }),
+      prisma.inquiry.count({ where: { status: 'NEW', deletedAt: null } }),
     ]);
 
     res.status(200).json({
@@ -103,8 +103,9 @@ export const getInquiry = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const inquiry = await prisma.inquiry.findUnique({
-      where: { id },
+    // Exclude soft-deleted records
+    const inquiry = await prisma.inquiry.findFirst({
+      where: { id, deletedAt: null },
     });
 
     if (!inquiry) {

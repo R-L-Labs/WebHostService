@@ -12,9 +12,9 @@ export const getClientPayments = async (req, res, next) => {
   try {
     const { clientId } = req.params;
 
-    // Verify client exists
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
+    // Verify client exists and is not deleted
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, deletedAt: null },
     });
 
     if (!client) {
@@ -24,8 +24,9 @@ export const getClientPayments = async (req, res, next) => {
       });
     }
 
+    // Exclude soft-deleted payments
     const payments = await prisma.payment.findMany({
-      where: { clientId },
+      where: { clientId, deletedAt: null },
       orderBy: { paymentDate: 'desc' },
     });
 
@@ -195,8 +196,9 @@ export const getPayment = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const payment = await prisma.payment.findUnique({
-      where: { id },
+    // Exclude soft-deleted payments
+    const payment = await prisma.payment.findFirst({
+      where: { id, deletedAt: null },
       include: {
         client: {
           select: {

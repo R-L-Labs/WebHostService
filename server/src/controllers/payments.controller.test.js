@@ -22,7 +22,7 @@ describe('payments.controller', () => {
   describe('getClientPayments', () => {
     it('should return 404 if client not found', async () => {
       mockReq.params = { clientId: 'nonexistent-uuid' };
-      mockPrisma.client.findUnique.mockResolvedValue(null);
+      mockPrisma.client.findFirst.mockResolvedValue(null);
 
       await getClientPayments(mockReq, mockRes, mockNext);
 
@@ -35,7 +35,7 @@ describe('payments.controller', () => {
 
     it('should return empty array with zero totals if no payments', async () => {
       mockReq.params = { clientId: 'test-uuid' };
-      mockPrisma.client.findUnique.mockResolvedValue({ id: 'test-uuid' });
+      mockPrisma.client.findFirst.mockResolvedValue({ id: 'test-uuid' });
       mockPrisma.payment.findMany.mockResolvedValue([]);
 
       await getClientPayments(mockReq, mockRes, mockNext);
@@ -56,7 +56,7 @@ describe('payments.controller', () => {
 
     it('should calculate totalPaid correctly for PAID payments', async () => {
       mockReq.params = { clientId: 'test-uuid' };
-      mockPrisma.client.findUnique.mockResolvedValue({ id: 'test-uuid' });
+      mockPrisma.client.findFirst.mockResolvedValue({ id: 'test-uuid' });
       mockPrisma.payment.findMany.mockResolvedValue([
         { amount: '100.00', status: 'PAID' },
         { amount: '50.50', status: 'PAID' },
@@ -70,7 +70,7 @@ describe('payments.controller', () => {
 
     it('should calculate totalPending correctly for PENDING payments', async () => {
       mockReq.params = { clientId: 'test-uuid' };
-      mockPrisma.client.findUnique.mockResolvedValue({ id: 'test-uuid' });
+      mockPrisma.client.findFirst.mockResolvedValue({ id: 'test-uuid' });
       mockPrisma.payment.findMany.mockResolvedValue([
         { amount: '75.25', status: 'PENDING' },
         { amount: '24.75', status: 'PENDING' },
@@ -84,7 +84,7 @@ describe('payments.controller', () => {
 
     it('should handle mixed payment statuses correctly', async () => {
       mockReq.params = { clientId: 'test-uuid' };
-      mockPrisma.client.findUnique.mockResolvedValue({ id: 'test-uuid' });
+      mockPrisma.client.findFirst.mockResolvedValue({ id: 'test-uuid' });
       mockPrisma.payment.findMany.mockResolvedValue([
         { amount: '100.00', status: 'PAID' },
         { amount: '50.50', status: 'PAID' },

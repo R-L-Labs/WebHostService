@@ -18,8 +18,8 @@ export const getClients = async (req, res, next) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Build where clause
-    const where = {};
+    // Build where clause - exclude soft-deleted records
+    const where = { deletedAt: null };
 
     // Add search filter
     if (search) {
@@ -79,11 +79,12 @@ export const getClients = async (req, res, next) => {
  */
 export const getClientStats = async (req, res, next) => {
   try {
+    // Exclude soft-deleted records from all stats
     const [totalClients, activeClients, prospectClients, inactiveClients] = await Promise.all([
-      prisma.client.count(),
-      prisma.client.count({ where: { status: 'ACTIVE' } }),
-      prisma.client.count({ where: { status: 'PROSPECT' } }),
-      prisma.client.count({ where: { status: 'INACTIVE' } }),
+      prisma.client.count({ where: { deletedAt: null } }),
+      prisma.client.count({ where: { status: 'ACTIVE', deletedAt: null } }),
+      prisma.client.count({ where: { status: 'PROSPECT', deletedAt: null } }),
+      prisma.client.count({ where: { status: 'INACTIVE', deletedAt: null } }),
     ]);
 
     res.status(200).json({
@@ -112,8 +113,9 @@ export const getClient = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const client = await prisma.client.findUnique({
-      where: { id },
+    // Exclude soft-deleted records
+    const client = await prisma.client.findFirst({
+      where: { id, deletedAt: null },
       include: {
         package: true,
       },
