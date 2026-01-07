@@ -224,15 +224,28 @@ export const updateClient = async (req, res, next) => {
 
 /**
  * @route   DELETE /api/clients/:id
- * @desc    Delete client
+ * @desc    Soft delete client
  * @access  Private
  */
 export const deleteClient = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    await prisma.client.delete({
+    // Check if client exists and is not already deleted
+    const existingClient = await prisma.client.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!existingClient) {
+      return res.status(404).json({
+        success: false,
+        message: 'Client not found',
+      });
+    }
+
+    await prisma.client.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({

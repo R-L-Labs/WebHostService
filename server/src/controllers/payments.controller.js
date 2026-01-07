@@ -153,16 +153,16 @@ export const updatePayment = async (req, res, next) => {
 
 /**
  * @route   DELETE /api/payments/:id
- * @desc    Delete a payment
+ * @desc    Soft delete a payment
  * @access  Private
  */
 export const deletePayment = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Check if payment exists
-    const existingPayment = await prisma.payment.findUnique({
-      where: { id },
+    // Check if payment exists and is not already deleted
+    const existingPayment = await prisma.payment.findFirst({
+      where: { id, deletedAt: null },
     });
 
     if (!existingPayment) {
@@ -172,8 +172,9 @@ export const deletePayment = async (req, res, next) => {
       });
     }
 
-    await prisma.payment.delete({
+    await prisma.payment.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({

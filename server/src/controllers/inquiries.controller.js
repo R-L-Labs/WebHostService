@@ -204,15 +204,28 @@ export const updateInquiry = async (req, res, next) => {
 
 /**
  * @route   DELETE /api/inquiries/:id
- * @desc    Delete inquiry
+ * @desc    Soft delete inquiry
  * @access  Private
  */
 export const deleteInquiry = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    await prisma.inquiry.delete({
+    // Check if inquiry exists and is not already deleted
+    const existingInquiry = await prisma.inquiry.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!existingInquiry) {
+      return res.status(404).json({
+        success: false,
+        message: 'Inquiry not found',
+      });
+    }
+
+    await prisma.inquiry.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({
