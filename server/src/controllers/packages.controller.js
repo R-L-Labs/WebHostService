@@ -1,6 +1,19 @@
 import { PrismaClient } from '@prisma/client';
+import logger from '../utils/logger.utils.js';
 
 const prisma = new PrismaClient();
+
+/**
+ * Safely parse JSON with fallback value
+ */
+const safeParseJSON = (str, fallback = []) => {
+  try {
+    return JSON.parse(str);
+  } catch (err) {
+    logger.warn({ err, value: str?.substring?.(0, 100) }, 'JSON parse failed');
+    return fallback;
+  }
+};
 
 /**
  * @route   GET /api/packages
@@ -17,7 +30,7 @@ export const getPackages = async (req, res, next) => {
     // Parse JSON features for each package
     const packagesWithFeatures = packages.map(pkg => ({
       ...pkg,
-      features: JSON.parse(pkg.features),
+      features: safeParseJSON(pkg.features, []),
     }));
 
     res.status(200).json({
@@ -52,7 +65,7 @@ export const getPackage = async (req, res, next) => {
     // Parse JSON features
     const packageWithFeatures = {
       ...pkg,
-      features: JSON.parse(pkg.features),
+      features: safeParseJSON(pkg.features, []),
     };
 
     res.status(200).json({
