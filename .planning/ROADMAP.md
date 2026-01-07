@@ -69,15 +69,12 @@ Key work:
 ### Phase 5: Code Quality
 **Goal**: Production-grade logging, proper error handling, accurate currency math
 **Depends on**: Phase 4
-**Research**: Likely (Pino setup, decimal.js integration)
-**Research topics**: Pino logger configuration, decimal.js for currency, Express error handling patterns
-**Plans**: TBD
+**Research**: Level 1 (Quick - established patterns)
+**Plans**: 2
 
 Key work:
-- Replace console.log with Pino structured logging
-- Add try/catch to JSON.parse calls in packages.controller.js
-- Fix floating point currency calculations with decimal.js
-- Ensure consistent error handling patterns
+- Plan 1: Pino structured logging (install, logger utility, replace console.log/error)
+- Plan 2: Error handling + currency fixes (safe JSON.parse, decimal.js for payments)
 
 ### Phase 6: Cleanup
 **Goal**: Clean, maintainable codebase with audit capabilities
@@ -102,5 +99,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Test Infrastructure | 3/3 | Complete | 2026-01-05 |
 | 3. Security Hardening | 2/2 | Complete | 2026-01-06 |
 | 4. Database Optimization | 1/1 | Complete | 2026-01-06 |
-| 5. Code Quality | 0/TBD | Not started | - |
+| 5. Code Quality | 0/2 | Planning complete | - |
 | 6. Cleanup | 0/TBD | Not started | - |
