@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import routes from './routes/index.js';
 import { errorHandler, notFound } from './middleware/errorHandler.middleware.js';
+import logger from './utils/logger.utils.js';
 
 // Load environment variables
 dotenv.config();
@@ -41,7 +42,7 @@ app.use(express.urlencoded({ extended: true }));
 // Request logging in development
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
+    logger.debug({ method: req.method, path: req.path }, 'request');
     next();
   });
 }
@@ -71,14 +72,16 @@ app.use(errorHandler);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`);
-  console.log(`📡 API available at http://localhost:${PORT}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/api/health\n`);
+  logger.info({
+    mode: process.env.NODE_ENV || 'development',
+    port: PORT,
+    health: `http://localhost:${PORT}/api/health`,
+  }, 'server started');
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
+  logger.fatal({ err }, 'unhandled promise rejection');
   // Close server & exit process
   process.exit(1);
 });

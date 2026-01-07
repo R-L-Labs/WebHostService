@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma.js';
 import { comparePassword } from '../utils/password.utils.js';
 import { generateToken } from '../utils/jwt.utils.js';
-
-const prisma = new PrismaClient();
 
 /**
  * @route   POST /api/auth/login

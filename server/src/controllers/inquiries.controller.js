@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma.js';
 
 /**
  * @route   POST /api/inquiries
@@ -56,16 +54,16 @@ export const getInquiries = async (req, res, next) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Build where clause
-    const where = {};
+    // Build where clause - exclude soft-deleted records
+    const where = { deletedAt: null };
 
     // Add status filter
     if (status && status !== 'ALL') {
       where.status = status;
     }
 
-    // Get inquiries with pagination
-    const [inquiries, totalCount] = await Promise.all([
+    // Get inquiries with pagination and counts (all queries run concurrently)
+    const [inquiries, totalCount, newInquiriesCount] = await Promise.all([
       prisma.inquiry.findMany({
         where,
         skip,
@@ -73,12 +71,8 @@ export const getInquiries = async (req, res, next) => {
         orderBy: { createdAt: 'desc' },
       }),
       prisma.inquiry.count({ where }),
+      prisma.inquiry.count({ where: { status: 'NEW', deletedAt: null } }),
     ]);
-
-    // Get count of new inquiries
-    const newInquiriesCount = await prisma.inquiry.count({
-      where: { status: 'NEW' },
-    });
 
     res.status(200).json({
       success: true,
@@ -107,8 +101,9 @@ export const getInquiry = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const inquiry = await prisma.inquiry.findUnique({
-      where: { id },
+    // Exclude soft-deleted records
+    const inquiry = await prisma.inquiry.findFirst({
+      where: { id, deletedAt: null },
     });
 
     if (!inquiry) {
@@ -208,15 +203,28 @@ export const updateInquiry = async (req, res, next) => {
 
 /**
  * @route   DELETE /api/inquiries/:id
- * @desc    Delete inquiry
+ * @desc    Soft delete inquiry
  * @access  Private
  */
 export const deleteInquiry = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    await prisma.inquiry.delete({
+    // Check if inquiry exists and is not already deleted
+    const existingInquiry = await prisma.inquiry.findFirst({
+      where: { id, deletedAt: null },
+    });
+
+    if (!existingInquiry) {
+      return res.status(404).json({
+        success: false,
+        message: 'Inquiry not found',
+      });
+    }
+
+    await prisma.inquiry.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({

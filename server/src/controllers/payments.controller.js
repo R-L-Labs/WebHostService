@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '../lib/prisma.js';
+import Decimal from 'decimal.js';
 
 /**
  * @route   GET /api/payments/client/:clientId
@@ -11,9 +10,9 @@ export const getClientPayments = async (req, res, next) => {
   try {
     const { clientId } = req.params;
 
-    // Verify client exists
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
+    // Verify client exists and is not deleted
+    const client = await prisma.client.findFirst({
+      where: { id: clientId, deletedAt: null },
     });
 
     if (!client) {
@@ -23,19 +22,22 @@ export const getClientPayments = async (req, res, next) => {
       });
     }
 
+    // Exclude soft-deleted payments
     const payments = await prisma.payment.findMany({
-      where: { clientId },
+      where: { clientId, deletedAt: null },
       orderBy: { paymentDate: 'desc' },
     });
 
-    // Calculate totals
+    // Calculate totals using Decimal for precision
     const totalPaid = payments
       .filter((p) => p.status === 'PAID')
-      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      .reduce((sum, p) => sum.plus(p.amount), new Decimal(0))
+      .toNumber();
 
     const totalPending = payments
       .filter((p) => p.status === 'PENDING')
-      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      .reduce((sum, p) => sum.plus(p.amount), new Decimal(0))
+      .toNumber();
 
     res.status(200).json({
       success: true,
@@ -150,16 +152,16 @@ export const updatePayment = async (req, res, next) => {
 
 /**
  * @route   DELETE /api/payments/:id
- * @desc    Delete a payment
+ * @desc    Soft delete a payment
  * @access  Private
  */
 export const deletePayment = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    // Check if payment exists
-    const existingPayment = await prisma.payment.findUnique({
-      where: { id },
+    // Check if payment exists and is not already deleted
+    const existingPayment = await prisma.payment.findFirst({
+      where: { id, deletedAt: null },
     });
 
     if (!existingPayment) {
@@ -169,8 +171,9 @@ export const deletePayment = async (req, res, next) => {
       });
     }
 
-    await prisma.payment.delete({
+    await prisma.payment.update({
       where: { id },
+      data: { deletedAt: new Date() },
     });
 
     res.status(200).json({
@@ -191,8 +194,9 @@ export const getPayment = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const payment = await prisma.payment.findUnique({
-      where: { id },
+    // Exclude soft-deleted payments
+    const payment = await prisma.payment.findFirst({
+      where: { id, deletedAt: null },
       include: {
         client: {
           select: {
