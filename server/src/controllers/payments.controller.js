@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import Decimal from 'decimal.js';
 
 const prisma = new PrismaClient();
 
@@ -28,14 +29,16 @@ export const getClientPayments = async (req, res, next) => {
       orderBy: { paymentDate: 'desc' },
     });
 
-    // Calculate totals
+    // Calculate totals using Decimal for precision
     const totalPaid = payments
       .filter((p) => p.status === 'PAID')
-      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      .reduce((sum, p) => sum.plus(p.amount), new Decimal(0))
+      .toNumber();
 
     const totalPending = payments
       .filter((p) => p.status === 'PENDING')
-      .reduce((sum, p) => sum + parseFloat(p.amount), 0);
+      .reduce((sum, p) => sum.plus(p.amount), new Decimal(0))
+      .toNumber();
 
     res.status(200).json({
       success: true,
