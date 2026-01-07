@@ -64,8 +64,8 @@ export const getInquiries = async (req, res, next) => {
       where.status = status;
     }
 
-    // Get inquiries with pagination
-    const [inquiries, totalCount] = await Promise.all([
+    // Get inquiries with pagination and counts (all queries run concurrently)
+    const [inquiries, totalCount, newInquiriesCount] = await Promise.all([
       prisma.inquiry.findMany({
         where,
         skip,
@@ -73,12 +73,8 @@ export const getInquiries = async (req, res, next) => {
         orderBy: { createdAt: 'desc' },
       }),
       prisma.inquiry.count({ where }),
+      prisma.inquiry.count({ where: { status: 'NEW' } }),
     ]);
-
-    // Get count of new inquiries
-    const newInquiriesCount = await prisma.inquiry.count({
-      where: { status: 'NEW' },
-    });
 
     res.status(200).json({
       success: true,
