@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: API Validation** - Add input validation middleware to all API endpoints
 - [x] **Phase 2: Test Infrastructure** - Set up Vitest and write tests for critical paths
 - [x] **Phase 3: Security Hardening** - Strengthen password requirements and add role checks
-- [ ] **Phase 4: Database Optimization** - Fix N+1 queries and add indexes
+- [x] **Phase 4: Database Optimization** - Fix N+1 queries and add indexes
 - [ ] **Phase 5: Code Quality** - Structured logging, error handling, currency fixes
 - [ ] **Phase 6: Cleanup** - Soft deletes, audit trail, dependency cleanup
 
@@ -61,12 +61,10 @@ Key work:
 **Goal**: Efficient queries with proper indexing
 **Depends on**: Phase 3
 **Research**: Unlikely (Prisma patterns known)
-**Plans**: TBD
+**Plans**: 1
 
 Key work:
-- Fix N+1 query pattern in inquiries.controller.js
-- Add database indexes on User.email, Client.email, Inquiry.email, Inquiry.status
-- Run migration and verify performance
+- Plan 1: Optimize getInquiries queries + add Inquiry indexes (email, status)
 
 ### Phase 5: Code Quality
 **Goal**: Production-grade logging, proper error handling, accurate currency math
@@ -103,6 +101,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. API Validation | 3/3 | Complete | 2026-01-05 |
 | 2. Test Infrastructure | 3/3 | Complete | 2026-01-05 |
 | 3. Security Hardening | 2/2 | Complete | 2026-01-06 |
-| 4. Database Optimization | 0/TBD | Not started | - |
+| 4. Database Optimization | 1/1 | Complete | 2026-01-06 |
 | 5. Code Quality | 0/TBD | Not started | - |
 | 6. Cleanup | 0/TBD | Not started | - |
