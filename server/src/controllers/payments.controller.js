@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma.js';
 import Decimal from 'decimal.js';
-
-const prisma = new PrismaClient();
 
 /**
  * @route   GET /api/payments/client/:clientId
