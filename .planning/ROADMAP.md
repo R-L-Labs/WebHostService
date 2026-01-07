@@ -77,16 +77,16 @@ Key work:
 - Plan 2: Error handling + currency fixes (safe JSON.parse, decimal.js for payments)
 
 ### Phase 6: Cleanup
-**Goal**: Clean, maintainable codebase with audit capabilities
+**Goal**: Clean, maintainable codebase with data retention
 **Depends on**: Phase 5
-**Research**: Unlikely (standard patterns)
-**Plans**: TBD
+**Research**: Level 0 (Skip - standard patterns)
+**Plans**: 2
 
 Key work:
-- Implement soft deletes with deletedAt timestamp
-- Add audit trail for data changes
-- Remove unused dependencies from package.json
-- Final code review and cleanup
+- Plan 1: Soft deletes for Client, Payment, Inquiry (deletedAt timestamp)
+- Plan 2: Final review and milestone completion
+
+Note: Audit trail deferred to future milestone (scope too large for cleanup).
 
 ## Progress
 
@@ -100,4 +100,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Security Hardening | 2/2 | Complete | 2026-01-06 |
 | 4. Database Optimization | 1/1 | Complete | 2026-01-06 |
 | 5. Code Quality | 2/2 | Complete | 2026-01-06 |
-| 6. Cleanup | 0/TBD | Not started | - |
+| 6. Cleanup | 0/2 | Planning complete | - |
