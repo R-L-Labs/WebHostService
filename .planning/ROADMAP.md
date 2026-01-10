@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Hardening** - Phases 1-6 (shipped 2026-01-06)
-- 🚧 **v1.1 Supabase Migration** - Phases 7-11 (in progress)
+- ✅ **v1.1 Supabase Migration** - Phases 7-11 (shipped 2026-01-10)
 
 ## Phases
 
@@ -49,7 +49,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 </details>
 
-### 🚧 v1.1 Supabase Migration (In Progress)
+<details>
+<summary>✅ v1.1 Supabase Migration (Phases 7-11) - SHIPPED 2026-01-10</summary>
 
 **Milestone Goal:** Remove Express backend and migrate to direct Supabase access, enabling static site deployment to Netlify.
 
@@ -57,71 +58,31 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: Auth Migration** - Replace custom JWT with Supabase Auth
 - [x] **Phase 9: Database Access** - Convert API calls to direct Supabase queries
 - [x] **Phase 10: Frontend Refactor** - Update stores and components for Supabase
-- [ ] **Phase 11: Backend Removal** - Remove server, configure Netlify deployment
-
-## Phase Details
+- [x] **Phase 11: Backend Removal** - Remove server, configure Netlify deployment
 
 ### Phase 7: Supabase Setup
 **Goal**: Supabase client configured with RLS policies protecting all tables
-**Depends on**: Phase 6 (hardening complete)
 **Plans**: 2/2 complete
-
-Completed:
-- Installed @supabase/supabase-js in client
-- Created Supabase client utility
-- Configured RLS policies for all 5 tables
-- Verified anonymous access blocked on protected tables
 
 ### Phase 8: Auth Migration
 **Goal**: Users authenticate via Supabase Auth with existing data preserved
-**Depends on**: Phase 7
-**Plans**: 0/3
-
-Key work:
-- Plan 08-01: Add auth_id column, create auth helper functions
-- Plan 08-02: Migrate authStore to Supabase sessions
-- Plan 08-03: Create test user, verify login flow
+**Plans**: 3/3 complete
 
 ### Phase 9: Database Access
 **Goal**: All CRUD operations work directly through Supabase client
-**Depends on**: Phase 8
-**Research**: Unlikely (standard Supabase queries)
-**Plans**: 0/2
-
-Key work:
-- Plan 09-01: Query modules for clients, inquiries, packages
-- Plan 09-02: Query modules for payments, users, barrel export
+**Plans**: 2/2 complete
 
 ### Phase 10: Frontend Refactor
 **Goal**: React app works entirely with Supabase, no Express dependency
-**Depends on**: Phase 9
-**Research**: Unlikely (React patterns)
-**Plans**: 0/3
-
-Key work:
-- Plan 10-01: Refactor DashboardPage and ClientsPage
-- Plan 10-02: Refactor InquiriesPage and UsersPage
-- Plan 10-03: Refactor public pages, remove axios
+**Plans**: 3/3 complete
 
 ### Phase 11: Backend Removal
 **Goal**: Server directory removed, app deployed to Netlify
-**Depends on**: Phase 10
-**Research**: Likely (Netlify deployment)
-**Research topics**: Netlify deployment config, environment variables, SPA routing
-**Plans**: TBD
+**Plans**: 1/1 complete
 
-Key work:
-- Remove server workspace from package.json
-- Delete server directory
-- Create netlify.toml with SPA redirect rules
-- Configure environment variables for Supabase
-- Deploy to Netlify
-- Verify production works
+</details>
 
 ## Progress
-
-**Execution Order:**
-Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -135,4 +96,6 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 | 8. Auth Migration | v1.1 | 3/3 | Complete | 2026-01-10 |
 | 9. Database Access | v1.1 | 2/2 | Complete | 2026-01-10 |
 | 10. Frontend Refactor | v1.1 | 3/3 | Complete | 2026-01-10 |
-| 11. Backend Removal | v1.1 | 0/TBD | Not started | - |
+| 11. Backend Removal | v1.1 | 1/1 | Complete | 2026-01-10 |
+
+**All milestones complete. Ready for production deployment.**
