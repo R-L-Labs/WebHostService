@@ -7,7 +7,7 @@ import { Label } from '../../components/ui/label';
 import { Textarea } from '../../components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { contactFormSchema } from '../../utils/validators';
-import { inquiriesAPI, packagesAPI } from '../../utils/api';
+import { getPackages, submitInquiry } from '../../lib/queries';
 import { toast } from 'sonner';
 import { Mail } from 'lucide-react';
 
@@ -44,8 +44,9 @@ export default function ContactPage() {
 
   const fetchPackages = async () => {
     try {
-      const { data } = await packagesAPI.getAll();
-      setPackages(data.data.packages || []);
+      const { packages, error } = await getPackages();
+      if (error) throw error;
+      setPackages(packages || []);
     } catch (error) {
       console.error('Error fetching packages:', error);
     }
@@ -54,13 +55,24 @@ export default function ContactPage() {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await inquiriesAPI.submit(data);
-      toast.success('Thank you for your inquiry! We\'ll get back to you soon.');
+      // Map camelCase form fields to snake_case database columns
+      const inquiryData = {
+        name: data.name,
+        email: data.email,
+        phone: data.phone || null,
+        business_name: data.businessName || null,
+        interested_package: data.interestedPackage || null,
+        message: data.message,
+        status: 'NEW',
+      };
+      const { error } = await submitInquiry(inquiryData);
+      if (error) throw error;
+      toast.success("Thank you for your inquiry! We'll get back to you soon.");
       reset();
       setSelectedPackages([]);
     } catch (error) {
       console.error('Error submitting inquiry:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit inquiry. Please try again.');
+      toast.error(error.message || 'Failed to submit inquiry. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
