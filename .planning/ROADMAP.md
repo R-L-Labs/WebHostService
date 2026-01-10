@@ -53,7 +53,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 **Milestone Goal:** Remove Express backend and migrate to direct Supabase access, enabling static site deployment to Netlify.
 
-- [ ] **Phase 7: Supabase Setup** - Initialize client SDK, configure Row Level Security
+- [x] **Phase 7: Supabase Setup** - Initialize client SDK, configure Row Level Security
 - [ ] **Phase 8: Auth Migration** - Replace custom JWT with Supabase Auth
 - [ ] **Phase 9: Database Access** - Convert API calls to direct Supabase queries
 - [ ] **Phase 10: Frontend Refactor** - Update stores and components for Supabase
@@ -64,15 +64,13 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Phase 7: Supabase Setup
 **Goal**: Supabase client configured with RLS policies protecting all tables
 **Depends on**: Phase 6 (hardening complete)
-**Research**: Likely (Supabase RLS patterns, client SDK setup)
-**Research topics**: Supabase JS client v2, RLS policy syntax, role-based access patterns
-**Plans**: TBD
+**Plans**: 2/2 complete
 
-Key work:
-- Install @supabase/supabase-js in client
-- Create Supabase client utility
-- Design and implement RLS policies for all tables (User, Client, Payment, Inquiry, Package)
-- Test RLS policies work correctly
+Completed:
+- Installed @supabase/supabase-js in client
+- Created Supabase client utility
+- Configured RLS policies for all 5 tables
+- Verified anonymous access blocked on protected tables
 
 ### Phase 8: Auth Migration
 **Goal**: Users authenticate via Supabase Auth with existing data preserved
@@ -141,7 +139,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 | 4. Database Optimization | v1.0 | 1/1 | Complete | 2026-01-06 |
 | 5. Code Quality | v1.0 | 2/2 | Complete | 2026-01-06 |
 | 6. Cleanup | v1.0 | 2/2 | Complete | 2026-01-06 |
-| 7. Supabase Setup | v1.1 | 1/2 | In progress | - |
+| 7. Supabase Setup | v1.1 | 2/2 | Complete | 2026-01-10 |
 | 8. Auth Migration | v1.1 | 0/TBD | Not started | - |
 | 9. Database Access | v1.1 | 0/TBD | Not started | - |
 | 10. Frontend Refactor | v1.1 | 0/TBD | Not started | - |
