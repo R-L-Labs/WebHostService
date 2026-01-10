@@ -2,24 +2,24 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-05)
+See: .planning/PROJECT.md (updated 2026-01-09)
 
-**Core value:** Make the codebase production-safe and maintainable
-**Current focus:** MILESTONE COMPLETE
+**Core value:** Enable static site deployment by removing backend dependency
+**Current focus:** Phase 7 — Supabase Setup
 
 ## Current Position
 
-Phase: 6 of 6 (Cleanup)
-Plan: 2/2 complete
-Status: MILESTONE COMPLETE
-Last activity: 2026-01-06 — Hardening milestone finished
+Phase: 7 of 11 (Supabase Setup)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-01-09 — v1.1 Supabase Migration milestone initialized
 
-Progress: ██████████ 100%
+Progress: ██████░░░░ 55% (v1.0 complete, v1.1 starting)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
+- Total plans completed: 13 (v1.0)
 - Average duration: ~3.2 min
 - Total execution time: ~42 min
 
@@ -27,12 +27,7 @@ Progress: ██████████ 100%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 API Validation | 3 | ~15 min | ~5 min |
-| 2 Test Infrastructure | 3 | ~8 min | ~2.7 min |
-| 3 Security Hardening | 2 | ~5 min | ~2.5 min |
-| 4 Database Optimization | 1 | ~2 min | ~2 min |
-| 5 Code Quality | 2 | ~6 min | ~3 min |
-| 6 Cleanup | 2 | ~6 min | ~3 min |
+| 1-6 (v1.0) | 13 | ~42 min | ~3.2 min |
 
 **Recent Trend:**
 - Last 5 plans: —
@@ -45,10 +40,9 @@ Progress: ██████████ 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Vitest over Jest (better ESM support, Vite already in stack)
-- Pino over Winston (lighter, JSON by default)
-- decimal.js for currency (industry standard)
-- Client-side role checks are defense in depth (server enforces)
+- Supabase Auth over custom JWT (simplify architecture)
+- Keep existing data (migrate users to Supabase Auth)
+- Target Netlify for deployment (static site after migration)
 
 ### Deferred Issues
 
@@ -56,10 +50,11 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- Password migration: Supabase Auth uses different hashing than bcrypt
+- RLS policies need careful design for role-based access
 
 ## Session Continuity
 
-Last session: 2026-01-06 21:10
-Stopped at: MILESTONE COMPLETE
-Resume file: None (milestone complete)
+Last session: 2026-01-09 21:00
+Stopped at: v1.1 milestone initialized, ready to plan Phase 7
+Resume file: None

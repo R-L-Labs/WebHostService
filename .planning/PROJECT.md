@@ -1,90 +1,113 @@
-# WebHostService Hardening
+# WebHostService
+
+## Milestones
+
+### ✅ v1.0 Hardening (Complete)
+
+Made the codebase production-safe with input validation, tests, structured logging, and soft deletes.
+
+### 🚧 v1.1 Supabase Migration (Current)
 
 ## What This Is
 
-A comprehensive cleanup and hardening effort for the WebHostService platform - a full-stack web hosting service management application with React frontend and Express backend. This milestone focuses on fixing all identified technical debt, security gaps, and code quality issues to make the codebase production-ready.
+Migration from Express + Prisma backend to direct Supabase access from the React frontend. This eliminates the need for a Node.js server, enabling deployment as a static site on Netlify.
 
 ## Core Value
 
-**Make the codebase production-safe and maintainable** - every API endpoint validates input, critical paths have tests, and code follows consistent patterns.
+**Enable simple static site deployment** - Remove backend complexity by leveraging Supabase's built-in auth and database access.
 
 ## Requirements
 
 ### Validated
 
-<!-- Existing capabilities that work and are relied upon -->
+<!-- Capabilities from v1.0 that remain -->
 
-- ✓ JWT authentication with role-based access (ADMIN, SUPER_ADMIN) — existing
-- ✓ Client CRUD with pagination and filtering — existing
-- ✓ Inquiry management with status workflow (NEW → CONTACTED → QUALIFIED → CONVERTED) — existing
-- ✓ Payment tracking per client — existing
-- ✓ Service package management — existing
-- ✓ User management for Super Admins — existing
-- ✓ Public contact form submission — existing
-- ✓ React SPA with Zustand state management — existing
-- ✓ Prisma ORM with PostgreSQL (Supabase) — existing
-- ✓ Rate limiting and CORS protection — existing
+- ✓ Client CRUD with pagination and filtering
+- ✓ Inquiry management with status workflow
+- ✓ Payment tracking per client
+- ✓ Service package management
+- ✓ User management for Super Admins
+- ✓ Public contact form submission
+- ✓ React SPA with Zustand state management
+- ✓ PostgreSQL database (Supabase)
+- ✓ Soft deletes on Client, Payment, Inquiry
 
 ### Active
 
-<!-- Current scope - the cleanup work -->
+<!-- v1.1 Migration scope -->
 
-**High Priority:**
-- [ ] Add input validation middleware to all API endpoints (express-validator)
-- [ ] Add UUID validation for route parameters
-- [ ] Strengthen password requirements (12+ chars, complexity)
-- [ ] Set up test framework (Vitest)
-- [ ] Write tests for critical paths (auth, payments, JWT utils)
+**Phase 7 - Supabase Setup:**
+- [ ] Install @supabase/supabase-js client
+- [ ] Create Supabase client utility
+- [ ] Design RLS policies for all tables
+- [ ] Implement and test RLS policies
 
-**Medium Priority:**
-- [ ] Fix N+1 query pattern in inquiries controller
-- [ ] Add database indexes on frequently queried fields
-- [ ] Replace console.log with structured logging (Pino)
-- [ ] Add try/catch to JSON.parse calls in packages controller
-- [ ] Fix floating point currency calculations (use decimal.js)
+**Phase 8 - Auth Migration:**
+- [ ] Configure Supabase Auth
+- [ ] Migrate existing users to Supabase Auth
+- [ ] Link auth.users to public.users
+- [ ] Update authStore for Supabase sessions
+- [ ] Implement role-based access
 
-**Low Priority:**
-- [ ] Add client-side role checking to ProtectedRoute
-- [ ] Implement soft deletes with audit trail
-- [ ] Clean up unused dependencies
+**Phase 9 - Database Access:**
+- [ ] Create Supabase query utilities
+- [ ] Handle soft deletes in queries
+- [ ] Ensure decimal handling for payments
+
+**Phase 10 - Frontend Refactor:**
+- [ ] Replace axios with Supabase client
+- [ ] Update all Zustand stores
+- [ ] Test all user flows
+
+**Phase 11 - Backend Removal:**
+- [ ] Remove server workspace
+- [ ] Delete server directory
+- [ ] Create netlify.toml
+- [ ] Deploy to Netlify
 
 ### Out of Scope
 
-<!-- Explicit boundaries -->
-
-- Email notifications (SendGrid/Nodemailer) — feature addition, not a fix
-- Redis caching layer — scaling concern for future milestone
-- Token refresh mechanism — works currently, enhancement for later
-- CI/CD pipeline — separate infrastructure concern
+- Email notifications
+- Real-time subscriptions (Supabase supports this, but not needed now)
+- Additional features beyond migration
 
 ## Context
 
-This is a brownfield cleanup of an existing, functional application. The codebase has good architecture and separation of concerns, but was developed rapidly without:
-- Input validation on API routes (express-validator installed but unused)
-- Automated tests
-- Production-grade logging
-- Database query optimization
+The existing Express backend serves as a thin API layer between React and Supabase/PostgreSQL. Since Supabase provides:
+- Built-in authentication
+- Row Level Security for authorization
+- Direct database access from client
 
-The concerns were identified via codebase analysis (see `.planning/codebase/CONCERNS.md`).
+The backend can be eliminated entirely, simplifying deployment and maintenance.
 
-**Existing infrastructure:**
-- Monorepo with npm workspaces (client + server)
-- React 19 + Vite + Tailwind (frontend)
-- Express 5 + Prisma + PostgreSQL/Supabase (backend)
-- JWT authentication with bcrypt password hashing
+**Current architecture:**
+```
+React → axios → Express → Prisma → PostgreSQL (Supabase)
+```
+
+**Target architecture:**
+```
+React → @supabase/supabase-js → PostgreSQL (Supabase)
+```
+
+**Existing data to preserve:**
+- Users table (needs migration to Supabase Auth)
+- Clients, Payments, Inquiries, Packages tables (keep as-is)
 
 ## Constraints
 
-- **API Compatibility**: Existing request/response contracts should not change (avoid breaking clients)
-- **Tech Stack**: Use existing dependencies where possible (express-validator already installed)
+- **Data Preservation**: Existing users and data must be migrated, not recreated
+- **Password Migration**: Supabase Auth uses different hashing; may need password reset flow
+- **RLS Security**: Row Level Security must match current API authorization logic
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Vitest over Jest | Vite already in stack, faster, better ESM support | — Pending |
-| Pino over Winston | Lighter weight, better performance, JSON by default | — Pending |
-| decimal.js for currency | Industry standard, precise decimal arithmetic | — Pending |
+| Supabase Auth over custom JWT | Simplifies auth, handles sessions/tokens automatically | Active |
+| Keep existing data | Production data exists, fresh start not viable | Active |
+| Netlify for hosting | Simple static site deployment, good free tier | Planned |
+| Password reset for migrated users | Supabase uses different hash algorithm than bcrypt | TBD |
 
 ---
-*Last updated: 2026-01-05 after initialization*
+*Last updated: 2026-01-09 — v1.1 milestone initialized*
