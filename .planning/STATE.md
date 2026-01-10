@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-01-09)
 
 **Core value:** Enable static site deployment by removing backend dependency
-**Current focus:** Phase 7 — Supabase Setup
+**Current focus:** Phase 8 — Auth Migration
 
 ## Current Position
 
-Phase: 7 of 11 (Supabase Setup)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-01-10 — Completed 07-02-PLAN.md
+Phase: 8 of 11 (Auth Migration)
+Plan: 0 of 3 in current phase
+Status: Ready to execute
+Last activity: 2026-01-10 — Created Phase 8 plans
 
 Progress: ██████░░░░ 62% (15/24 plans complete)
 

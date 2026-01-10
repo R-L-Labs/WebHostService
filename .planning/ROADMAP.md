@@ -75,16 +75,12 @@ Completed:
 ### Phase 8: Auth Migration
 **Goal**: Users authenticate via Supabase Auth with existing data preserved
 **Depends on**: Phase 7
-**Research**: Likely (Supabase Auth, user migration)
-**Research topics**: Supabase Auth hooks, migrating existing bcrypt passwords, auth state management
-**Plans**: TBD
+**Plans**: 0/3
 
 Key work:
-- Set up Supabase Auth in project
-- Migrate existing users to Supabase Auth (handle password migration)
-- Link auth.users to public.users table
-- Update authStore to use Supabase session
-- Implement role-based access using Supabase custom claims or profiles table
+- Plan 08-01: Add auth_id column, create auth helper functions
+- Plan 08-02: Migrate authStore to Supabase sessions
+- Plan 08-03: Create test user, verify login flow
 
 ### Phase 9: Database Access
 **Goal**: All CRUD operations work directly through Supabase client
@@ -140,7 +136,7 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 | 5. Code Quality | v1.0 | 2/2 | Complete | 2026-01-06 |
 | 6. Cleanup | v1.0 | 2/2 | Complete | 2026-01-06 |
 | 7. Supabase Setup | v1.1 | 2/2 | Complete | 2026-01-10 |
-| 8. Auth Migration | v1.1 | 0/TBD | Not started | - |
+| 8. Auth Migration | v1.1 | 0/3 | Not started | - |
 | 9. Database Access | v1.1 | 0/TBD | Not started | - |
 | 10. Frontend Refactor | v1.1 | 0/TBD | Not started | - |
 | 11. Backend Removal | v1.1 | 0/TBD | Not started | - |
