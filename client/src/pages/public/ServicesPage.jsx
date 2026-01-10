@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
 import { CheckCircle } from 'lucide-react';
-import { packagesAPI } from '../../utils/api';
+import { getPackages } from '../../lib/queries';
 import { formatPrice } from '../../utils/helpers';
 import { toast } from 'sonner';
 
@@ -17,8 +17,9 @@ export default function ServicesPage() {
 
   const fetchPackages = async () => {
     try {
-      const { data } = await packagesAPI.getAll();
-      setPackages(data.data.packages || []);
+      const { packages, error } = await getPackages();
+      if (error) throw error;
+      setPackages(packages || []);
     } catch (error) {
       console.error('Error fetching packages:', error);
       toast.error('Failed to load service packages');
