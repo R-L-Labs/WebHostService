@@ -18,3 +18,18 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
  *   .select('*')
  */
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+/**
+ * Set up auth state change listener.
+ * Call this once on app initialization.
+ * @param {Function} onAuthStateChange - Callback for auth state changes
+ * @returns {Function} Unsubscribe function
+ */
+export function setupAuthListener(onAuthStateChange) {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    (event, session) => {
+      onAuthStateChange(event, session)
+    }
+  )
+  return () => subscription.unsubscribe()
+}
