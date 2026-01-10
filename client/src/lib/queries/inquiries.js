@@ -53,18 +53,16 @@ export async function getInquiry(id) {
 
 /**
  * Submit a new inquiry (public contact form).
- * Note: RLS may block anonymous submissions - will be addressed in Phase 10.
+ * Anonymous users can INSERT but not SELECT, so we don't return the row.
  * @param {Object} data - Inquiry data (name, email, message, etc.)
- * @returns {Promise<{inquiry: Object|null, error: Error|null}>}
+ * @returns {Promise<{error: Error|null}>}
  */
 export async function submitInquiry(data) {
-  const { data: inquiry, error } = await supabase
+  const { error } = await supabase
     .from('inquiries')
     .insert(data)
-    .select()
-    .single()
 
-  return { inquiry, error }
+  return { error }
 }
 
 /**
