@@ -86,13 +86,11 @@ Key work:
 **Goal**: All CRUD operations work directly through Supabase client
 **Depends on**: Phase 8
 **Research**: Unlikely (standard Supabase queries)
-**Plans**: TBD
+**Plans**: 0/2
 
 Key work:
-- Create Supabase query utilities for each entity (clients, payments, inquiries, packages)
-- Handle soft deletes in queries
-- Ensure decimal handling for payments
-- Test all operations match current behavior
+- Plan 09-01: Query modules for clients, inquiries, packages
+- Plan 09-02: Query modules for payments, users, barrel export
 
 ### Phase 10: Frontend Refactor
 **Goal**: React app works entirely with Supabase, no Express dependency
@@ -137,6 +135,6 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 | 6. Cleanup | v1.0 | 2/2 | Complete | 2026-01-06 |
 | 7. Supabase Setup | v1.1 | 2/2 | Complete | 2026-01-10 |
 | 8. Auth Migration | v1.1 | 3/3 | Complete | 2026-01-10 |
-| 9. Database Access | v1.1 | 0/TBD | Not started | - |
+| 9. Database Access | v1.1 | 0/2 | Not started | - |
 | 10. Frontend Refactor | v1.1 | 0/TBD | Not started | - |
 | 11. Backend Removal | v1.1 | 0/TBD | Not started | - |
