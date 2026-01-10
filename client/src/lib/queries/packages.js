@@ -1,6 +1,22 @@
 import { supabase } from '../supabase'
 
 /**
+ * Parse features field which may be stored as JSON string or array.
+ */
+function parseFeatures(pkg) {
+  if (!pkg) return pkg
+  let features = pkg.features
+  if (typeof features === 'string') {
+    try {
+      features = JSON.parse(features)
+    } catch {
+      features = []
+    }
+  }
+  return { ...pkg, features: features || [] }
+}
+
+/**
  * Get all packages.
  * Packages are publicly readable via RLS.
  * @returns {Promise<{packages: Array, error: Error|null}>}
@@ -12,7 +28,8 @@ export async function getPackages() {
     .eq('is_active', true)
     .order('price', { ascending: true })
 
-  return { packages: data || [], error }
+  const packages = (data || []).map(parseFeatures)
+  return { packages, error }
 }
 
 /**
@@ -28,5 +45,5 @@ export async function getPackage(id) {
     .eq('is_active', true)
     .single()
 
-  return { package: data, error }
+  return { package: parseFeatures(data), error }
 }
