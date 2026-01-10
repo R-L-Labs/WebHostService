@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-01-09)
 ## Current Position
 
 Phase: 8 of 11 (Auth Migration)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-01-10 — Completed 08-01-PLAN.md
+Last activity: 2026-01-10 — Completed 08-02-PLAN.md
 
-Progress: ██████░░░░ 66% (16/24 plans complete)
+Progress: ███████░░░ 71% (17/24 plans complete)
 
 ## Performance Metrics
 
@@ -29,10 +29,10 @@ Progress: ██████░░░░ 66% (16/24 plans complete)
 |-------|-------|-------|----------|
 | 1-6 (v1.0) | 13 | ~42 min | ~3.2 min |
 | 7 (v1.1) | 2 | ~18 min | ~9 min |
-| 8 (v1.1) | 1 | ~14 min | ~14 min |
+| 8 (v1.1) | 2 | ~22 min | ~11 min |
 
 **Recent Trend:**
-- Last 5 plans: 07-01 (7min), 07-02 (11min), 08-01 (14min)
+- Last 5 plans: 07-01 (7min), 07-02 (11min), 08-01 (14min), 08-02 (8min)
 - Trend: External service phases slower due to user checkpoints
 
 ## Accumulated Context
@@ -58,6 +58,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-01-10 05:12
-Stopped at: Completed 08-01-PLAN.md (Auth setup & helpers)
+Last session: 2026-01-10
+Stopped at: Completed 08-02-PLAN.md (AuthStore migration)
 Resume file: None
