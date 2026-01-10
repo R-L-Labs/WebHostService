@@ -96,14 +96,12 @@ Key work:
 **Goal**: React app works entirely with Supabase, no Express dependency
 **Depends on**: Phase 9
 **Research**: Unlikely (React patterns)
-**Plans**: TBD
+**Plans**: 0/3
 
 Key work:
-- Update api.js to use Supabase client instead of axios
-- Update all stores (authStore, clientStore, inquiryStore)
-- Update components that directly call API
-- Remove axios dependency
-- Test all user flows work
+- Plan 10-01: Refactor DashboardPage and ClientsPage
+- Plan 10-02: Refactor InquiriesPage and UsersPage
+- Plan 10-03: Refactor public pages, remove axios
 
 ### Phase 11: Backend Removal
 **Goal**: Server directory removed, app deployed to Netlify
@@ -136,5 +134,5 @@ Phases execute in numeric order: 7 → 8 → 9 → 10 → 11
 | 7. Supabase Setup | v1.1 | 2/2 | Complete | 2026-01-10 |
 | 8. Auth Migration | v1.1 | 3/3 | Complete | 2026-01-10 |
 | 9. Database Access | v1.1 | 2/2 | Complete | 2026-01-10 |
-| 10. Frontend Refactor | v1.1 | 0/TBD | Not started | - |
+| 10. Frontend Refactor | v1.1 | 0/3 | Not started | - |
 | 11. Backend Removal | v1.1 | 0/TBD | Not started | - |
