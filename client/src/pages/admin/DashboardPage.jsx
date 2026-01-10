@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { clientsAPI, inquiriesAPI } from '../../utils/api';
+import { getClientStats, getInquiries } from '../../lib/queries';
 import { Users, TrendingUp, Mail } from 'lucide-react';
 import { formatDate } from '../../utils/helpers';
 import { toast } from 'sonner';
@@ -16,13 +16,16 @@ export default function DashboardPage() {
 
   const fetchData = async () => {
     try {
-      const [statsRes, inquiriesRes] = await Promise.all([
-        clientsAPI.getStats(),
-        inquiriesAPI.getAll({ limit: 5, page: 1 }),
+      const [statsResult, inquiriesResult] = await Promise.all([
+        getClientStats(),
+        getInquiries({ limit: 5, page: 1 }),
       ]);
 
-      setStats(statsRes.data.data.stats);
-      setRecentInquiries(inquiriesRes.data.data.inquiries || []);
+      if (statsResult.error) throw statsResult.error;
+      if (inquiriesResult.error) throw inquiriesResult.error;
+
+      setStats(statsResult.stats);
+      setRecentInquiries(inquiriesResult.inquiries);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
