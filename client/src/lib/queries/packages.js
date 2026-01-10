@@ -9,7 +9,7 @@ export async function getPackages() {
   const { data, error } = await supabase
     .from('packages')
     .select('*')
-    .is('deleted_at', null)
+    .eq('is_active', true)
     .order('price', { ascending: true })
 
   return { packages: data || [], error }
@@ -25,9 +25,8 @@ export async function getPackage(id) {
     .from('packages')
     .select('*')
     .eq('id', id)
-    .is('deleted_at', null)
+    .eq('is_active', true)
     .single()
 
-  // Use 'pkg' to avoid reserved word conflict
   return { package: data, error }
 }
