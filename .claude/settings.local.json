@@ -18,7 +18,12 @@
       "Bash(npm test)",
       "Bash(npm test:*)",
       "Bash(npx prisma validate:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(ls:*)",
+      "WebSearch",
+      "Bash(npm run build:*)",
+      "Bash(curl -s -X POST \"https://qicizhaniwpipqujnovm.supabase.co/rest/v1/inquiries\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpY2l6aGFuaXdwaXBxdWpub3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc1OTQ5ODksImV4cCI6MjA4MzE3MDk4OX0.UXOeSBWhqmbAd3BEGKOm--CU8gBX-LSMWUNjBjgJ41M\" -H \"Content-Type: application/json\" -H \"Prefer: return=representation\" -d '{\"\"name\"\":\"\"RLS Test\"\",\"\"email\"\":\"\"test@example.com\"\",\"\"message\"\":\"\"Testing RLS anonymous insert\"\",\"\"status\"\":\"\"new\"\"}')",
+      "Bash(curl -s -X POST \"https://qicizhaniwpipqujnovm.supabase.co/rest/v1/inquiries\" -H \"apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFpY2l6aGFuaXdwaXBxdWpub3ZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc1OTQ5ODksImV4cCI6MjA4MzE3MDk4OX0.UXOeSBWhqmbAd3BEGKOm--CU8gBX-LSMWUNjBjgJ41M\" -H \"Content-Type: application/json\" -H \"Prefer: return=representation\" -d '{\"\"name\"\":\"\"RLS Test\"\",\"\"email\"\":\"\"test@example.com\"\",\"\"message\"\":\"\"Testing RLS anonymous insert\"\"}')"
     ]
   }
 }
