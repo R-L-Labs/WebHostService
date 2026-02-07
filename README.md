@@ -1,6 +1,6 @@
-# WebHostService
+# SiteKeeper
 
-Professional web development and hosting service platform for R&L Labs - targeting small business owners who need websites without technical knowledge.
+Professional web development and hosting service platform - targeting small business owners who need websites without technical knowledge.
 
 ## Overview
 
@@ -51,7 +51,7 @@ npm run dev
 ## Project Structure
 
 ```
-WebHostService/
+SiteKeeper/
 ├── client/                  # React frontend
 │   ├── src/
 │   │   ├── components/     # Reusable UI components
@@ -115,11 +115,11 @@ The application uses Supabase with Row Level Security (RLS) policies protecting 
 
 ## License
 
-Proprietary - R&L Labs
+Proprietary - SiteKeeper
 
 ## Support
 
-For issues or questions, contact: rllabsadmin@rl-labs.org
+For issues or questions, contact: support@rl-labs.org
 
 ---
 

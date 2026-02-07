@@ -62,7 +62,7 @@ export default function HomePage() {
         <div className="container-custom">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">
-              Why Choose R&L Labs?
+              Why Choose SiteKeeper?
             </h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               We specialize in helping small businesses get online quickly and affordably.
