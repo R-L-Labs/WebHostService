@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Sparkles } from 'lucide-react';
 import { getPackages } from '../../lib/queries';
 import { formatPrice } from '../../utils/helpers';
 import { toast } from 'sonner';
@@ -28,6 +28,12 @@ export default function ServicesPage() {
     }
   };
 
+  const FOUNDERS_DISCOUNT = 0.30;
+
+  const getDiscountedPrice = (price) => {
+    return Math.round(price * (1 - FOUNDERS_DISCOUNT) * 100) / 100;
+  };
+
   const getPriceDisplay = (pkg) => {
     // Custom Website package shows "Contact for Quote"
     if (pkg.price === 0 || pkg.name.toLowerCase().includes('custom')) {
@@ -38,22 +44,22 @@ export default function ServicesPage() {
       );
     }
 
-    // Hosting & Maintenance shows monthly pricing
-    if (pkg.name.toLowerCase().includes('hosting') || pkg.name.toLowerCase().includes('maintenance')) {
-      return (
-        <>
-          <span className="text-4xl font-bold">{formatPrice(pkg.price)}</span>
-          <span className="text-gray-600">/month</span>
-        </>
-      );
-    }
+    const discountedPrice = getDiscountedPrice(pkg.price);
+    const suffix = pkg.name.toLowerCase().includes('hosting') || pkg.name.toLowerCase().includes('maintenance')
+      ? '/month'
+      : ' one-time';
 
-    // Everything else is one-time
     return (
-      <>
-        <span className="text-4xl font-bold">{formatPrice(pkg.price)}</span>
-        <span className="text-gray-600"> one-time</span>
-      </>
+      <div>
+        <div className="flex items-baseline gap-2">
+          <span className="text-lg text-gray-400 line-through">{formatPrice(pkg.price)}</span>
+          <span className="text-4xl font-bold text-green-600">{formatPrice(discountedPrice)}</span>
+          <span className="text-gray-600">{suffix}</span>
+        </div>
+        <span className="inline-block mt-1 text-xs font-semibold text-white bg-orange-500 rounded-full px-2 py-0.5">
+          SAVE {Math.round(FOUNDERS_DISCOUNT * 100)}%
+        </span>
+      </div>
     );
   };
 
@@ -74,6 +80,25 @@ export default function ServicesPage() {
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Choose the perfect package for your business. All packages include mobile-responsive
             design and professional support.
+          </p>
+        </div>
+      </section>
+
+      {/* Founders Discount Banner */}
+      <section className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 py-6">
+        <div className="container-custom text-center">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <Sparkles className="w-6 h-6 text-white" />
+            <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">
+              Founders Discount
+            </h2>
+            <Sparkles className="w-6 h-6 text-white" />
+          </div>
+          <p className="text-white/90 text-lg md:text-xl font-semibold">
+            30% off for our first 5 customers — limited spots available!
+          </p>
+          <p className="text-white/75 text-sm mt-1">
+            Mention "FOUNDERS" when you contact us to claim your discount.
           </p>
         </div>
       </section>
