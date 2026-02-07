@@ -38,9 +38,9 @@ export default function AdminLayout() {
             {sidebarOpen && (
               <Link to="/admin/dashboard" className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                  RL
+                  SK
                 </div>
-                <span className="font-heading font-bold">R&L Labs</span>
+                <span className="font-heading font-bold">SiteKeeper</span>
               </Link>
             )}
             <button

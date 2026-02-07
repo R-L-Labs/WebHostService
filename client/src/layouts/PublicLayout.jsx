@@ -24,9 +24,9 @@ export default function PublicLayout() {
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center text-white font-bold">
-                RL
+                SK
               </div>
-              <span className="font-heading font-bold text-xl">R&L Labs</span>
+              <span className="font-heading font-bold text-xl">SiteKeeper</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -101,9 +101,9 @@ export default function PublicLayout() {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center text-white font-bold">
-                  RL
+                  SK
                 </div>
-                <span className="font-heading font-bold text-xl">R&L Labs</span>
+                <span className="font-heading font-bold text-xl">SiteKeeper</span>
               </div>
               <p className="text-gray-400 text-sm mb-4">
                 Professional web development and hosting services for small businesses.
@@ -135,7 +135,7 @@ export default function PublicLayout() {
           </div>
 
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; {new Date().getFullYear()} R&L Labs LLC. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} SiteKeeper. All rights reserved.</p>
           </div>
         </div>
       </footer>
