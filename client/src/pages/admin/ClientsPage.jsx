@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
-import { clientsAPI, paymentsAPI, packagesAPI } from '../../utils/api';
+import { getClients, updateClient, getPackages, getPaymentsByClient, createPayment, deletePayment } from '../../lib/queries';
 import { getStatusColor, formatDate, formatDateTime, formatPrice, getPaymentMethodLabel } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
@@ -53,8 +53,9 @@ export default function ClientsPage() {
 
   const fetchPackages = async () => {
     try {
-      const { data } = await packagesAPI.getAll();
-      setPackages(data.data.packages || []);
+      const { packages: pkgs, error } = await getPackages();
+      if (error) throw error;
+      setPackages(pkgs);
     } catch (error) {
       console.error('Error fetching packages:', error);
     }
@@ -63,8 +64,9 @@ export default function ClientsPage() {
   const fetchClients = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      const { data } = await clientsAPI.getAll({ limit: 20, page: 1 });
-      setClients(data.data.clients || []);
+      const { clients: clientList, error } = await getClients({ limit: 20, page: 1 });
+      if (error) throw error;
+      setClients(clientList);
       if (isRefresh) toast.success('Clients refreshed');
     } catch (error) {
       console.error('Error fetching clients:', error);
@@ -80,9 +82,18 @@ export default function ClientsPage() {
   const fetchPayments = async (clientId) => {
     setLoadingPayments(true);
     try {
-      const { data } = await paymentsAPI.getByClient(clientId);
-      setPayments(data.data.payments || []);
-      setPaymentSummary(data.data.summary || { totalPaid: 0, totalPending: 0, count: 0 });
+      const { payments: paymentList, error } = await getPaymentsByClient(clientId);
+      if (error) throw error;
+      setPayments(paymentList);
+
+      // Calculate summary from payments
+      const totalPaid = paymentList
+        .filter(p => p.status === 'PAID')
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+      const totalPending = paymentList
+        .filter(p => p.status === 'PENDING')
+        .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+      setPaymentSummary({ totalPaid, totalPending, count: paymentList.length });
     } catch (error) {
       console.error('Error fetching payments:', error);
       toast.error('Failed to load payments');
@@ -129,18 +140,23 @@ export default function ClientsPage() {
 
     setSavingPayment(true);
     try {
-      await paymentsAPI.create({
-        clientId: selectedClient.id,
-        ...newPayment,
+      const { error } = await createPayment({
+        client_id: selectedClient.id,
         amount: parseFloat(newPayment.amount),
+        description: newPayment.description,
+        payment_date: newPayment.paymentDate,
+        payment_method: newPayment.paymentMethod,
+        status: newPayment.status,
+        notes: newPayment.notes,
       });
+      if (error) throw error;
       toast.success('Payment added successfully');
       setShowAddPayment(false);
       resetPaymentForm();
       fetchPayments(selectedClient.id);
     } catch (error) {
       console.error('Error adding payment:', error);
-      toast.error(error.response?.data?.message || 'Failed to add payment');
+      toast.error(error.message || 'Failed to add payment');
     } finally {
       setSavingPayment(false);
     }
@@ -150,7 +166,8 @@ export default function ClientsPage() {
     if (!confirm('Are you sure you want to delete this payment?')) return;
 
     try {
-      await paymentsAPI.delete(paymentId);
+      const { error } = await deletePayment(paymentId);
+      if (error) throw error;
       toast.success('Payment deleted');
       fetchPayments(selectedClient.id);
     } catch (error) {
@@ -164,7 +181,8 @@ export default function ClientsPage() {
 
     setUpdatingStatus(true);
     try {
-      await clientsAPI.update(selectedClient.id, { status: newStatus });
+      const { error } = await updateClient(selectedClient.id, { status: newStatus });
+      if (error) throw error;
       toast.success(`Client status updated to ${newStatus}`);
 
       // Update local state
@@ -191,7 +209,8 @@ export default function ClientsPage() {
 
     try {
       const interestedPackages = newSelection.join(', ');
-      await clientsAPI.update(selectedClient.id, { interestedPackages });
+      const { error } = await updateClient(selectedClient.id, { interested_packages: interestedPackages });
+      if (error) throw error;
 
       const updatedClient = {
         ...selectedClient,

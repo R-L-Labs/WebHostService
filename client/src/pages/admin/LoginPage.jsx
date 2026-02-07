@@ -7,7 +7,6 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { loginFormSchema } from '../../utils/validators';
-import { authAPI } from '../../utils/api';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'sonner';
 
@@ -34,13 +33,16 @@ export default function LoginPage() {
   const onSubmit = async (formData) => {
     setIsSubmitting(true);
     try {
-      const { data } = await authAPI.login(formData.email, formData.password);
-      login(data.data.user, data.data.token);
-      toast.success('Welcome back!');
-      navigate('/admin/dashboard');
+      const result = await login(formData.email, formData.password);
+      if (result.success) {
+        toast.success('Welcome back!');
+        navigate('/admin/dashboard');
+      } else {
+        toast.error(result.error || 'Invalid email or password');
+      }
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.message || 'Invalid email or password');
+      toast.error('An unexpected error occurred');
     } finally {
       setIsSubmitting(false);
     }

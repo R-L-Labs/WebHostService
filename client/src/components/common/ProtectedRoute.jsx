@@ -2,10 +2,15 @@ import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 export default function ProtectedRoute({ children, allowedRoles }) {
-  const { isAuthenticated, token, user } = useAuthStore();
+  const { isAuthenticated, isLoading, user } = useAuthStore();
 
-  // Check authentication first
-  if (!isAuthenticated || !token) {
+  // Show nothing while checking auth state
+  if (isLoading) {
+    return null;
+  }
+
+  // Check authentication
+  if (!isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
   }
 

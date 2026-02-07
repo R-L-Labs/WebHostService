@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { inquiriesAPI } from '../../utils/api';
+import { getInquiries, updateInquiry, deleteInquiry } from '../../lib/queries';
 import { getStatusColor, formatDateTime } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
@@ -24,8 +24,9 @@ export default function InquiriesPage() {
   const fetchInquiries = async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     try {
-      const { data } = await inquiriesAPI.getAll({ limit: 50, page: 1 });
-      setInquiries(data.data.inquiries || []);
+      const { inquiries: data, error } = await getInquiries({ limit: 50, page: 1 });
+      if (error) throw error;
+      setInquiries(data || []);
       if (isRefresh) toast.success('Inquiries refreshed');
     } catch (error) {
       console.error('Error fetching inquiries:', error);
@@ -51,11 +52,12 @@ export default function InquiriesPage() {
 
     setUpdating(true);
     try {
-      const { data } = await inquiriesAPI.update(selectedInquiry.id, { status });
+      const { inquiry: updated, error } = await updateInquiry(selectedInquiry.id, { status });
+      if (error) throw error;
 
       // Check if a client was created (for CONVERTED status)
-      if (status === 'CONVERTED' && data.data.client) {
-        toast.success(`Inquiry accepted! Client "${data.data.client.businessName}" has been created.`);
+      if (status === 'CONVERTED' && updated?.client) {
+        toast.success(`Inquiry accepted! Client "${updated.client.business_name}" has been created.`);
       } else {
         toast.success(`Inquiry marked as ${status.toLowerCase()}`);
       }
@@ -83,7 +85,8 @@ export default function InquiriesPage() {
     if (!confirm('Are you sure you want to delete this inquiry? This cannot be undone.')) return;
 
     try {
-      await inquiriesAPI.delete(selectedInquiry.id);
+      const { error } = await deleteInquiry(selectedInquiry.id);
+      if (error) throw error;
       toast.success('Inquiry deleted');
       setInquiries(inquiries.filter(inq => inq.id !== selectedInquiry.id));
       closeInquiryModal();

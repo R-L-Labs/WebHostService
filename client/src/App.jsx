@@ -1,5 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { useAuthStore } from './store/authStore';
+import { setupAuthListener } from './lib/supabase';
+import { getCurrentUser } from './lib/auth';
 
 // Layouts
 import PublicLayout from './layouts/PublicLayout';
@@ -21,6 +25,22 @@ import UsersPage from './pages/admin/UsersPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 
 function App() {
+  useEffect(() => {
+    const { initializeAuth, setUser } = useAuthStore.getState();
+    initializeAuth();
+
+    const unsubscribe = setupAuthListener(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        const { user } = await getCurrentUser();
+        setUser(user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <BrowserRouter>
       <Toaster position="top-right" richColors />

@@ -2,41 +2,39 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-01-05)
+See: .planning/PROJECT.md (updated 2026-01-09)
 
-**Core value:** Make the codebase production-safe and maintainable
-**Current focus:** MILESTONE COMPLETE
+**Core value:** Enable static site deployment by removing backend dependency
+**Current focus:** Milestone v1.1 Complete — Ready for Deployment
 
 ## Current Position
 
-Phase: 6 of 6 (Cleanup)
-Plan: 2/2 complete
+Phase: 11 of 11 (Backend Removal) - COMPLETE
+Plan: 1 of 1 in current phase
 Status: MILESTONE COMPLETE
-Last activity: 2026-01-06 — Hardening milestone finished
+Last activity: 2026-01-10 — Completed 11-01-PLAN.md
 
-Progress: ██████████ 100%
+Progress: ██████████ 100% (24/24 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: ~3.2 min
-- Total execution time: ~42 min
+- Total plans completed: 17
+- Average duration: ~4.8 min
+- Total execution time: ~82 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 API Validation | 3 | ~15 min | ~5 min |
-| 2 Test Infrastructure | 3 | ~8 min | ~2.7 min |
-| 3 Security Hardening | 2 | ~5 min | ~2.5 min |
-| 4 Database Optimization | 1 | ~2 min | ~2 min |
-| 5 Code Quality | 2 | ~6 min | ~3 min |
-| 6 Cleanup | 2 | ~6 min | ~3 min |
+| 1-6 (v1.0) | 13 | ~42 min | ~3.2 min |
+| 7 (v1.1) | 2 | ~18 min | ~9 min |
+| 8 (v1.1) | 3 | ~32 min | ~11 min |
+| 9-11 (v1.1) | 5 | ~25 min | ~5 min |
 
 **Recent Trend:**
-- Last 5 plans: —
-- Trend: —
+- Last 5 plans: 10-01 (5min), 10-02 (2min), 10-03 (5min), 11-01 (8min)
+- Trend: Consistent execution, final cleanup phase slightly longer
 
 ## Accumulated Context
 
@@ -45,21 +43,35 @@ Progress: ██████████ 100%
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Vitest over Jest (better ESM support, Vite already in stack)
-- Pino over Winston (lighter, JSON by default)
-- decimal.js for currency (industry standard)
-- Client-side role checks are defense in depth (server enforces)
+- Supabase Auth over custom JWT (simplify architecture)
+- Keep existing data (migrate users to Supabase Auth)
+- Target Netlify for deployment (static site after migration)
+- Use VITE_ prefix for Supabase env vars (Vite requirement)
+- Password reset via email (Supabase Auth flow, more secure)
+- Complete server removal (no fallback Express backend)
 
 ### Deferred Issues
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+- Anonymous INSERT to inquiries: SQL created at `.planning/phases/10-frontend-refactor/migration-anon-inquiry.sql`, needs to be run in Supabase SQL Editor
+
+## Milestone v1.1 Complete
+
+All phases of the Supabase Migration are complete:
+
+- [x] Phase 7: Supabase Setup
+- [x] Phase 8: Auth Migration
+- [x] Phase 9: Database Access
+- [x] Phase 10: Frontend Refactor
+- [x] Phase 11: Backend Removal
+
+**Ready for production deployment to Netlify.**
 
 ## Session Continuity
 
-Last session: 2026-01-06 21:10
-Stopped at: MILESTONE COMPLETE
-Resume file: None (milestone complete)
+Last session: 2026-01-10
+Stopped at: Milestone v1.1 complete - ready for deployment
+Resume file: None

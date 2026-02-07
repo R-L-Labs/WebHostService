@@ -1,7 +1,6 @@
 # Dependencies
 node_modules/
 client/node_modules/
-server/node_modules/
 
 # Environment variables
 .env
@@ -9,13 +8,10 @@ server/node_modules/
 .env.production
 client/.env
 client/.env.local
-server/.env
-server/.env.local
 
 # Build outputs
 client/dist/
 client/build/
-server/dist/
 
 # Logs
 *.log
@@ -43,10 +39,6 @@ Thumbs.db
 .project
 .classpath
 .settings/
-
-# Prisma
-server/prisma/migrations/
-!server/prisma/migrations/.gitkeep
 
 # Testing
 coverage/

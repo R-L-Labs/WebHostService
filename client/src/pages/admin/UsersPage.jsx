@@ -2,20 +2,16 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { Input } from '../../components/ui/input';
-import { Label } from '../../components/ui/label';
-import { usersAPI } from '../../utils/api';
+import { getUsers } from '../../lib/queries';
+import { resetPassword } from '../../lib/auth';
 import { formatDate } from '../../utils/helpers';
 import { toast } from 'sonner';
-import { KeyRound, X } from 'lucide-react';
+import { KeyRound, Mail } from 'lucide-react';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [resetting, setResetting] = useState(false);
+  const [resettingUserId, setResettingUserId] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -23,55 +19,30 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const { data } = await usersAPI.getAll();
-      setUsers(data.data.users || []);
+      const { users: data, error } = await getUsers();
+      if (error) throw error;
+      setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      if (error.response?.status === 403) {
-        toast.error('You do not have permission to view users');
-      } else {
-        toast.error('Failed to load users');
-      }
+      toast.error('Failed to load users');
     } finally {
       setLoading(false);
     }
   };
 
-  const openResetModal = (user) => {
-    setSelectedUser(user);
-    setNewPassword('');
-    setConfirmPassword('');
-  };
+  const handleSendResetEmail = async (user) => {
+    if (!confirm(`Send password reset email to ${user.email}?`)) return;
 
-  const closeResetModal = () => {
-    setSelectedUser(null);
-    setNewPassword('');
-    setConfirmPassword('');
-  };
-
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
-
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-
-    setResetting(true);
+    setResettingUserId(user.id);
     try {
-      await usersAPI.resetPassword(selectedUser.id, newPassword);
-      toast.success(`Password reset successfully for ${selectedUser.email}`);
-      closeResetModal();
+      const { error } = await resetPassword(user.email);
+      if (error) throw error;
+      toast.success(`Password reset email sent to ${user.email}`);
     } catch (error) {
-      console.error('Error resetting password:', error);
-      toast.error(error.response?.data?.message || 'Failed to reset password');
+      console.error('Error sending reset email:', error);
+      toast.error('Failed to send password reset email');
     } finally {
-      setResetting(false);
+      setResettingUserId(null);
     }
   };
 
@@ -135,10 +106,11 @@ export default function UsersPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => openResetModal(user)}
+                          onClick={() => handleSendResetEmail(user)}
+                          disabled={resettingUserId === user.id}
                         >
-                          <KeyRound className="w-4 h-4 mr-2" />
-                          Reset Password
+                          <Mail className="w-4 h-4 mr-2" />
+                          {resettingUserId === user.id ? 'Sending...' : 'Send Reset Email'}
                         </Button>
                       </td>
                     </tr>
@@ -149,60 +121,6 @@ export default function UsersPage() {
           </div>
         </CardContent>
       </Card>
-
-      {/* Reset Password Modal */}
-      {selectedUser && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Reset Password</h3>
-              <button
-                onClick={closeResetModal}
-                className="p-1 hover:bg-gray-100 rounded"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Reset password for <strong>{selectedUser.email}</strong>
-            </p>
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">New Password</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm new password"
-                  required
-                  minLength={6}
-                />
-              </div>
-              <div className="flex gap-3 justify-end">
-                <Button type="button" variant="outline" onClick={closeResetModal}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={resetting}>
-                  {resetting ? 'Resetting...' : 'Reset Password'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
