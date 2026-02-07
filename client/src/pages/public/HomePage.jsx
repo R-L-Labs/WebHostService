@@ -7,28 +7,30 @@ export default function HomePage() {
   const services = [
     {
       icon: <Globe className="w-8 h-8 text-primary-600" />,
-      title: 'Web Design',
-      description: 'Beautiful, mobile-responsive websites tailored to your business needs.',
+      title: 'Professional Websites',
+      description: 'Beautiful, mobile-responsive websites designed for small businesses. From basic to fully custom solutions.',
     },
     {
       icon: <Zap className="w-8 h-8 text-primary-600" />,
-      title: 'Fast & Reliable',
-      description: 'Lightning-fast loading speeds and 99.9% uptime guarantee.',
+      title: 'High Performance',
+      description: 'Lightning-fast sites with 90+ Google PageSpeed scores. Your customers won\'t be kept waiting.',
     },
     {
       icon: <Headphones className="w-8 h-8 text-primary-600" />,
-      title: '24/7 Support',
-      description: 'Expert support whenever you need it. We\'re here to help you succeed.',
+      title: 'Ongoing Support',
+      description: 'Priority email support and unlimited content updates with our hosting packages.',
     },
   ];
 
   const features = [
-    'Mobile-First Design',
-    'SEO Optimization',
-    'Secure Hosting',
-    'Regular Backups',
-    'Unlimited Updates',
-    'Free SSL Certificate',
+    'Mobile-Responsive Design',
+    'High Performance Sites (90+ PageSpeed)',
+    'Professional Email Support',
+    'Content Updates & Maintenance',
+    'Domain & DNS Setup',
+    'Social Media Integration',
+    'Google Maps Integration',
+    'Contact Form Setup',
   ];
 
   return (
@@ -92,9 +94,8 @@ export default function HomePage() {
                 Everything You Need to Succeed Online
               </h2>
               <p className="text-gray-600 mb-8">
-                Our websites come packed with features designed to help your business grow. No
-                hidden fees, no surprises - just everything you need to establish your online
-                presence.
+                SiteKeeper provides all the essential features your small business needs to succeed
+                online. From lightning-fast performance to seamless integrations, we've got you covered.
               </p>
               <div className="grid grid-cols-2 gap-4">
                 {features.map((feature, index) => (

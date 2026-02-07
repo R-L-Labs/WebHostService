@@ -26,7 +26,7 @@ export async function getPackages() {
     .from('packages')
     .select('*')
     .eq('is_active', true)
-    .order('price', { ascending: true })
+    .order('display_order', { ascending: true })
 
   const packages = (data || []).map(parseFeatures)
   return { packages, error }
