@@ -1,5 +1,23 @@
 import { supabase } from '../supabase'
 
+// Transform snake_case DB row to camelCase for frontend
+function transformPayment(row) {
+  if (!row) return null
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    amount: row.amount,
+    description: row.description,
+    paymentDate: row.payment_date,
+    paymentMethod: row.payment_method,
+    status: row.status,
+    notes: row.notes,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  }
+}
+
 /**
  * Get all payments for a specific client.
  * @param {number} clientId - Client ID
@@ -13,7 +31,7 @@ export async function getPaymentsByClient(clientId) {
     .is('deleted_at', null)
     .order('payment_date', { ascending: false })
 
-  return { payments: data || [], error }
+  return { payments: (data || []).map(transformPayment), error }
 }
 
 /**

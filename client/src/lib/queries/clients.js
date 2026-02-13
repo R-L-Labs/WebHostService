@@ -1,5 +1,24 @@
 import { supabase } from '../supabase'
 
+// Transform snake_case DB row to camelCase for frontend
+function transformClient(row) {
+  if (!row) return null
+  return {
+    id: row.id,
+    businessName: row.business_name,
+    contactName: row.contact_name,
+    email: row.email,
+    phone: row.phone,
+    website: row.website,
+    status: row.status,
+    interestedPackages: row.interested_packages,
+    notes: row.notes,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  }
+}
+
 /**
  * Get all clients with pagination, search, and status filtering.
  * @param {Object} params - Query parameters
@@ -34,7 +53,7 @@ export async function getClients(params = {}) {
   const { data, count, error } = await query
 
   return {
-    clients: data || [],
+    clients: (data || []).map(transformClient),
     total: count || 0,
     error
   }
@@ -53,7 +72,7 @@ export async function getClient(id) {
     .is('deleted_at', null)
     .single()
 
-  return { client: data, error }
+  return { client: transformClient(data), error }
 }
 
 /**
@@ -68,7 +87,7 @@ export async function createClient(data) {
     .select()
     .single()
 
-  return { client, error }
+  return { client: transformClient(client), error }
 }
 
 /**
@@ -85,7 +104,7 @@ export async function updateClient(id, data) {
     .select()
     .single()
 
-  return { client, error }
+  return { client: transformClient(client), error }
 }
 
 /**
