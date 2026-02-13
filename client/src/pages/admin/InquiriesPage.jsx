@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { getInquiries, updateInquiry, deleteInquiry } from '../../lib/queries';
+import { getInquiries, updateInquiry, deleteInquiry, createClient } from '../../lib/queries';
 import { getStatusColor, formatDateTime } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
@@ -55,12 +55,7 @@ export default function InquiriesPage() {
       const { inquiry: updated, error } = await updateInquiry(selectedInquiry.id, { status });
       if (error) throw error;
 
-      // Check if a client was created (for CONVERTED status)
-      if (status === 'CONVERTED' && updated?.client) {
-        toast.success(`Inquiry accepted! Client "${updated.client.business_name}" has been created.`);
-      } else {
-        toast.success(`Inquiry marked as ${status.toLowerCase()}`);
-      }
+      toast.success(`Inquiry marked as ${status.toLowerCase()}`);
 
       // Update local state
       setInquiries(inquiries.map(inq =>
@@ -75,7 +70,43 @@ export default function InquiriesPage() {
     }
   };
 
-  const handleAccept = () => updateInquiryStatus('CONVERTED');
+  const handleAccept = async () => {
+    if (!selectedInquiry) return;
+
+    setUpdating(true);
+    try {
+      // Create a client from the inquiry data
+      const now = new Date().toISOString();
+      const { client, error: clientError } = await createClient({
+        id: crypto.randomUUID(),
+        business_name: selectedInquiry.businessName || selectedInquiry.name,
+        contact_name: selectedInquiry.name,
+        email: selectedInquiry.email,
+        phone: selectedInquiry.phone || null,
+        interested_packages: selectedInquiry.interestedPackage || null,
+        status: 'PROSPECT',
+        updated_at: now,
+      });
+      if (clientError) throw clientError;
+
+      // Mark the inquiry as converted
+      const { error: updateError } = await updateInquiry(selectedInquiry.id, { status: 'CONVERTED' });
+      if (updateError) throw updateError;
+
+      toast.success(`Inquiry accepted! Client "${client.businessName}" has been created.`);
+
+      // Update local state
+      setInquiries(inquiries.map(inq =>
+        inq.id === selectedInquiry.id ? { ...inq, status: 'CONVERTED' } : inq
+      ));
+      setSelectedInquiry({ ...selectedInquiry, status: 'CONVERTED' });
+    } catch (error) {
+      console.error('Error accepting inquiry:', error);
+      toast.error('Failed to accept inquiry');
+    } finally {
+      setUpdating(false);
+    }
+  };
   const handleDecline = () => updateInquiryStatus('DISMISSED');
   const handleMarkContacted = () => updateInquiryStatus('CONTACTED');
   const handleMarkQualified = () => updateInquiryStatus('QUALIFIED');

@@ -1,5 +1,23 @@
 import { supabase } from '../supabase'
 
+// Transform snake_case DB row to camelCase for frontend
+function transformInquiry(row) {
+  if (!row) return null
+  return {
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    businessName: row.business_name,
+    interestedPackage: row.interested_package,
+    message: row.message,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    deletedAt: row.deleted_at,
+  }
+}
+
 /**
  * Get all inquiries with pagination and status filtering.
  * @param {Object} params - Query parameters
@@ -29,7 +47,7 @@ export async function getInquiries(params = {}) {
   const { data, count, error } = await query
 
   return {
-    inquiries: data || [],
+    inquiries: (data || []).map(transformInquiry),
     total: count || 0,
     error
   }
@@ -48,7 +66,7 @@ export async function getInquiry(id) {
     .is('deleted_at', null)
     .single()
 
-  return { inquiry: data, error }
+  return { inquiry: transformInquiry(data), error }
 }
 
 /**
@@ -79,7 +97,7 @@ export async function updateInquiry(id, data) {
     .select()
     .single()
 
-  return { inquiry, error }
+  return { inquiry: transformInquiry(inquiry), error }
 }
 
 /**
