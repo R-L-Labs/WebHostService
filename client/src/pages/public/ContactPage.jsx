@@ -13,6 +13,7 @@ import { Mail } from 'lucide-react';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [packages, setPackages] = useState([]);
   const [selectedPackages, setSelectedPackages] = useState([]);
   const [selectedAddons, setSelectedAddons] = useState([]);
@@ -91,7 +92,13 @@ export default function ContactPage() {
   };
 
   const onSubmit = async (data) => {
+    const now = Date.now();
+    if (now - lastSubmitTime < 30000) {
+      toast.error('Please wait 30 seconds before submitting again.');
+      return;
+    }
     setIsSubmitting(true);
+    setLastSubmitTime(now);
     try {
       // Map camelCase form fields to snake_case database columns
       const inquiryData = {
@@ -177,9 +184,11 @@ export default function ContactPage() {
                         {...register('name')}
                         placeholder="Your full name"
                         className="mt-1"
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? 'name-error' : undefined}
                       />
                       {errors.name && (
-                        <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+                        <p id="name-error" className="text-sm text-red-600 mt-1">{errors.name.message}</p>
                       )}
                     </div>
 
@@ -193,9 +202,11 @@ export default function ContactPage() {
                         {...register('email')}
                         placeholder="your.email@example.com"
                         className="mt-1"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                       />
                       {errors.email && (
-                        <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                        <p id="email-error" className="text-sm text-red-600 mt-1">{errors.email.message}</p>
                       )}
                     </div>
 
@@ -325,9 +336,11 @@ export default function ContactPage() {
                         placeholder="Tell us about your project and what you're looking for..."
                         rows={5}
                         className="mt-1"
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? 'message-error' : undefined}
                       />
                       {errors.message && (
-                        <p className="text-sm text-red-600 mt-1">{errors.message.message}</p>
+                        <p id="message-error" className="text-sm text-red-600 mt-1">{errors.message.message}</p>
                       )}
                     </div>
 

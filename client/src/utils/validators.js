@@ -28,8 +28,8 @@ export const clientFormSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || val === '' || /^https?:\/\/.+/.test(val),
-      'Website must be a valid URL (http:// or https://)'
+      (val) => !val || val === '' || /^https?:\/\/[^\s/$.?#].[^\s]*$/.test(val),
+      'Website must be a valid URL (e.g. https://example.com)'
     ),
   status: z.enum(['PROSPECT', 'ACTIVE', 'INACTIVE', 'CANCELLED']),
   packageId: z.string().optional().or(z.literal('')),

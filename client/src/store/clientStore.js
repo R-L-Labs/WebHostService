@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const useClientStore = create((set, get) => ({
+export const useClientStore = create((set) => ({
   clients: [],
   currentClient: null,
   totalCount: 0,

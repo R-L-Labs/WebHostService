@@ -28,6 +28,7 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside
+        aria-label="Admin navigation"
         className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 transition-all duration-300 z-40 ${
           sidebarOpen ? 'w-64' : 'w-0 md:w-20'
         }`}
@@ -46,6 +47,7 @@ export default function AdminLayout() {
             <button
               onClick={toggleSidebar}
               className={`p-2 hover:bg-gray-100 rounded-md ${!sidebarOpen && 'mx-auto'}`}
+              aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -96,6 +98,7 @@ export default function AdminLayout() {
                 onClick={handleLogout}
                 className="p-2 hover:bg-gray-100 rounded-md w-full flex justify-center"
                 title="Logout"
+                aria-label="Logout"
               >
                 <LogOut className="w-5 h-5 text-gray-700" />
               </button>

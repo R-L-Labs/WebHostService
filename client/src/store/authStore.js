@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { signIn, signOut, getSession, getCurrentUser } from '../lib/auth';
 
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true, // Start true for initial auth check

@@ -60,7 +60,7 @@ export async function getUser(id) {
  * @param {string} newPassword - New password (unused - see note)
  * @returns {Promise<{error: Error}>}
  */
-export async function resetPassword(id, newPassword) {
+export async function resetPassword(_id, _newPassword) {
   // Password changes must go through Supabase Auth email flow
   // Use: import { resetPassword } from '@/lib/auth'
   // Then: await resetPassword(userEmail)

@@ -372,6 +372,7 @@ export default function ClientsPage() {
               <button
                 onClick={closeClientModal}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close client details"
               >
                 <X className="w-5 h-5" />
               </button>

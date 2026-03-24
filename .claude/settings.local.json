@@ -29,7 +29,10 @@
       "Bash(curl:*)",
       "Bash(npx supabase:*)",
       "Bash(python -m json.tool:*)",
-      "Bash(npx vite:*)"
+      "Bash(npx vite:*)",
+      "Bash(npm audit:*)",
+      "Bash(grep -r \"submitInquiry\\\\|getClients\\\\|updateClient\" 'H:/Github Repos/WebHostService/client/src/pages' --include=*.jsx -A 2 -B 2)",
+      "Bash(grep -r \"ProtectedRoute\\\\|PrivateRoute\\\\|requireAuth\" 'H:/Github Repos/WebHostService/client/src' --include=*.jsx --include=*.js)"
     ]
   }
 }

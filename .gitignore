@@ -44,6 +44,9 @@ Thumbs.db
 coverage/
 .nyc_output
 
+# Windows artifacts
+nul
+
 # Misc
 .cache/
 .temp/

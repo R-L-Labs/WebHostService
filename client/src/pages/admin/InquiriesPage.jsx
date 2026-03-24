@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { getInquiries, updateInquiry, deleteInquiry, createClient } from '../../lib/queries';
+import { getInquiries, updateInquiry, deleteInquiry, createClient, deleteClient } from '../../lib/queries';
 import { getStatusColor, formatDateTime } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
@@ -52,7 +52,7 @@ export default function InquiriesPage() {
 
     setUpdating(true);
     try {
-      const { inquiry: updated, error } = await updateInquiry(selectedInquiry.id, { status });
+      const { error } = await updateInquiry(selectedInquiry.id, { status });
       if (error) throw error;
 
       toast.success(`Inquiry marked as ${status.toLowerCase()}`);
@@ -74,6 +74,7 @@ export default function InquiriesPage() {
     if (!selectedInquiry) return;
 
     setUpdating(true);
+    let createdClientId = null;
     try {
       // Create a client from the inquiry data
       const now = new Date().toISOString();
@@ -89,10 +90,15 @@ export default function InquiriesPage() {
         updated_at: now,
       });
       if (clientError) throw clientError;
+      createdClientId = client.id;
 
       // Mark the inquiry as converted
       const { error: updateError } = await updateInquiry(selectedInquiry.id, { status: 'CONVERTED' });
-      if (updateError) throw updateError;
+      if (updateError) {
+        // Rollback: soft-delete the orphaned client
+        await deleteClient(createdClientId);
+        throw updateError;
+      }
 
       toast.success(`Inquiry accepted! Client "${client.businessName}" has been created.`);
 
@@ -232,6 +238,7 @@ export default function InquiriesPage() {
               <button
                 onClick={closeInquiryModal}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close inquiry details"
               >
                 <X className="w-5 h-5" />
               </button>

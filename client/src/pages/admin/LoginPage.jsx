@@ -14,6 +14,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
 
   const {
     register,
@@ -31,14 +33,29 @@ export default function LoginPage() {
   }, [isAuthenticated, navigate]);
 
   const onSubmit = async (formData) => {
+    const now = Date.now();
+    if (now < lockedUntil) {
+      const secsLeft = Math.ceil((lockedUntil - now) / 1000);
+      toast.error(`Too many attempts. Try again in ${secsLeft} seconds.`);
+      return;
+    }
     setIsSubmitting(true);
     try {
       const result = await login(formData.email, formData.password);
       if (result.success) {
+        setLoginAttempts(0);
         toast.success('Welcome back!');
         navigate('/admin/dashboard');
       } else {
-        toast.error(result.error || 'Invalid email or password');
+        const attempts = loginAttempts + 1;
+        setLoginAttempts(attempts);
+        if (attempts >= 5) {
+          setLockedUntil(Date.now() + 60000);
+          setLoginAttempts(0);
+          toast.error('Too many failed attempts. Locked for 60 seconds.');
+        } else {
+          toast.error(result.error || 'Invalid email or password');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -72,9 +89,11 @@ export default function LoginPage() {
                 placeholder="admin@rl-labs.org"
                 {...register('email')}
                 className="mt-1"
+                aria-invalid={!!errors.email}
+                aria-describedby={errors.email ? 'login-email-error' : undefined}
               />
               {errors.email && (
-                <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                <p id="login-email-error" className="text-sm text-red-600 mt-1">{errors.email.message}</p>
               )}
             </div>
 
@@ -86,9 +105,11 @@ export default function LoginPage() {
                 placeholder="••••••••"
                 {...register('password')}
                 className="mt-1"
+                aria-invalid={!!errors.password}
+                aria-describedby={errors.password ? 'login-password-error' : undefined}
               />
               {errors.password && (
-                <p className="text-sm text-red-600 mt-1">{errors.password.message}</p>
+                <p id="login-password-error" className="text-sm text-red-600 mt-1">{errors.password.message}</p>
               )}
             </div>
 
