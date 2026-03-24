@@ -10,6 +10,7 @@ function transformInquiry(row) {
     phone: row.phone,
     businessName: row.business_name,
     interestedPackage: row.interested_package,
+    additionalServices: row.additional_services,
     message: row.message,
     status: row.status,
     createdAt: row.created_at,

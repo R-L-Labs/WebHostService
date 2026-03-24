@@ -7,7 +7,7 @@ import { getStatusColor, formatDateTime } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
   X, Mail, Phone, Building2, MessageSquare, Calendar,
-  CheckCircle, XCircle, Trash2, PhoneCall, RefreshCw, Package
+  CheckCircle, XCircle, Trash2, PhoneCall, RefreshCw, Package, Sparkles
 } from 'lucide-react';
 
 export default function InquiriesPage() {
@@ -84,6 +84,7 @@ export default function InquiriesPage() {
         email: selectedInquiry.email,
         phone: selectedInquiry.phone || null,
         interested_packages: selectedInquiry.interestedPackage || null,
+        additional_services: selectedInquiry.additionalServices || null,
         status: 'PROSPECT',
         updated_at: now,
       });
@@ -188,6 +189,11 @@ export default function InquiriesPage() {
                           Interested in: {inquiry.interestedPackage}
                         </p>
                       )}
+                      {inquiry.additionalServices && (
+                        <p className="text-xs text-secondary-600 mt-1">
+                          Add-ons: {inquiry.additionalServices}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Badge className={getStatusColor(inquiry.status)}>{inquiry.status}</Badge>
@@ -290,6 +296,17 @@ export default function InquiriesPage() {
                       <div>
                         <p className="text-xs text-gray-500">Interested In</p>
                         <p className="font-medium text-primary-700">{selectedInquiry.interestedPackage}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedInquiry.additionalServices && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-secondary-100 rounded-lg flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-secondary-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Additional Services</p>
+                        <p className="font-medium text-secondary-700">{selectedInquiry.additionalServices}</p>
                       </div>
                     </div>
                   )}
