@@ -9,7 +9,7 @@ import { getStatusColor, formatDate, formatDateTime, formatPrice, getPaymentMeth
 import { toast } from 'sonner';
 import {
   X, ExternalLink, Mail, Phone, Building2, Package, FileText, Calendar,
-  DollarSign, Plus, Trash2, CreditCard, RefreshCw
+  DollarSign, Plus, Trash2, CreditCard, RefreshCw, Sparkles
 } from 'lucide-react';
 
 const CLIENT_STATUSES = [
@@ -28,6 +28,8 @@ export default function ClientsPage() {
   const [packages, setPackages] = useState([]);
   const [updatingPackage, setUpdatingPackage] = useState(false);
   const [selectedPackages, setSelectedPackages] = useState([]);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [updatingAddon, setUpdatingAddon] = useState(false);
 
   // Payments state
   const [payments, setPayments] = useState([]);
@@ -108,6 +110,9 @@ export default function ClientsPage() {
     // Initialize selected packages from client's interestedPackages
     const interested = client.interestedPackages ? client.interestedPackages.split(', ').filter(p => p) : [];
     setSelectedPackages(interested);
+    // Initialize additional services
+    const addons = client.additionalServices ? client.additionalServices.split(', ').filter(a => a) : [];
+    setSelectedAddons(addons);
   };
 
   const closeClientModal = () => {
@@ -117,6 +122,7 @@ export default function ClientsPage() {
     setShowAddPayment(false);
     resetPaymentForm();
     setSelectedPackages([]);
+    setSelectedAddons([]);
   };
 
   const resetPaymentForm = () => {
@@ -229,6 +235,44 @@ export default function ClientsPage() {
     }
   };
 
+  const ADDITIONAL_SERVICES = [
+    { name: 'Instagram Gallery', price: '+$15/month' },
+    { name: 'Jobber Form', price: 'Free' },
+    { name: 'Facebook Reviews', price: 'Contact for pricing' },
+    { name: 'Other', price: '' },
+  ];
+
+  const toggleAddon = async (addonName) => {
+    if (!selectedClient) return;
+
+    const newSelection = selectedAddons.includes(addonName)
+      ? selectedAddons.filter(a => a !== addonName)
+      : [...selectedAddons, addonName];
+
+    setSelectedAddons(newSelection);
+    setUpdatingAddon(true);
+
+    try {
+      const additionalServices = newSelection.join(', ');
+      const { error } = await updateClient(selectedClient.id, { additional_services: additionalServices });
+      if (error) throw error;
+
+      const updatedClient = {
+        ...selectedClient,
+        additionalServices: additionalServices,
+      };
+
+      setSelectedClient(updatedClient);
+      setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
+    } catch (error) {
+      console.error('Error updating client addons:', error);
+      toast.error('Failed to update additional services');
+      setSelectedAddons(selectedAddons);
+    } finally {
+      setUpdatingAddon(false);
+    }
+  };
+
   if (loading) {
     return <div>Loading clients...</div>;
   }
@@ -260,6 +304,7 @@ export default function ClientsPage() {
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Contact</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Email</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Packages</th>
+                  <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Add-ons</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Status</th>
                   <th className="text-left py-3 px-4 font-medium text-sm text-gray-600">Created</th>
                 </tr>
@@ -267,7 +312,7 @@ export default function ClientsPage() {
               <tbody>
                 {clients.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                    <td colSpan={7} className="text-center py-8 text-gray-500">
                       No clients found
                     </td>
                   </tr>
@@ -284,6 +329,7 @@ export default function ClientsPage() {
                       <td className="py-3 px-4">{client.contactName}</td>
                       <td className="py-3 px-4 text-sm text-gray-600">{client.email}</td>
                       <td className="py-3 px-4 text-sm">{client.interestedPackages || 'None'}</td>
+                      <td className="py-3 px-4 text-sm">{client.additionalServices || 'None'}</td>
                       <td className="py-3 px-4">
                         <Badge className={getStatusColor(client.status)}>{client.status}</Badge>
                       </td>
@@ -326,6 +372,7 @@ export default function ClientsPage() {
               <button
                 onClick={closeClientModal}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close client details"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -444,6 +491,46 @@ export default function ClientsPage() {
                   ))}
                 </div>
                 <p className="text-xs text-gray-500 mt-2">Select all packages the client is interested in</p>
+              </div>
+
+              {/* Additional Services */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+                    Additional Services
+                  </h4>
+                  {updatingAddon && <span className="text-sm text-gray-500">Saving...</span>}
+                </div>
+                <div className="space-y-2">
+                  {ADDITIONAL_SERVICES.map((addon) => (
+                    <label
+                      key={addon.name}
+                      className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        selectedAddons.includes(addon.name)
+                          ? 'border-primary-500 bg-primary-50'
+                          : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedAddons.includes(addon.name)}
+                        onChange={() => toggleAddon(addon.name)}
+                        disabled={updatingAddon}
+                        className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                      />
+                      <div className="flex items-center gap-3">
+                        <Sparkles className="w-5 h-5 text-gray-600" />
+                        <div>
+                          <span className="font-medium">{addon.name}</span>
+                          {addon.price && (
+                            <span className="text-gray-500 ml-2">— {addon.price}</span>
+                          )}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Select additional services the client is using</p>
               </div>
 
               {/* Payments Section */}

@@ -52,6 +52,7 @@ export default function ServicesPage() {
     return (
       <div>
         <div className="flex items-baseline gap-2">
+          <span className="text-sm text-gray-500 font-medium">Starting at</span>
           <span className="text-lg text-gray-400 line-through">{formatPrice(pkg.price)}</span>
           <span className="text-4xl font-bold text-green-600">{formatPrice(discountedPrice)}</span>
           <span className="text-gray-600">{suffix}</span>

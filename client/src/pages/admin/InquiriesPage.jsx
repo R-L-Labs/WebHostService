@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
-import { getInquiries, updateInquiry, deleteInquiry, createClient } from '../../lib/queries';
+import { getInquiries, updateInquiry, deleteInquiry, createClient, deleteClient } from '../../lib/queries';
 import { getStatusColor, formatDateTime } from '../../utils/helpers';
 import { toast } from 'sonner';
 import {
   X, Mail, Phone, Building2, MessageSquare, Calendar,
-  CheckCircle, XCircle, Trash2, PhoneCall, RefreshCw, Package
+  CheckCircle, XCircle, Trash2, PhoneCall, RefreshCw, Package, Sparkles
 } from 'lucide-react';
 
 export default function InquiriesPage() {
@@ -52,7 +52,7 @@ export default function InquiriesPage() {
 
     setUpdating(true);
     try {
-      const { inquiry: updated, error } = await updateInquiry(selectedInquiry.id, { status });
+      const { error } = await updateInquiry(selectedInquiry.id, { status });
       if (error) throw error;
 
       toast.success(`Inquiry marked as ${status.toLowerCase()}`);
@@ -74,6 +74,7 @@ export default function InquiriesPage() {
     if (!selectedInquiry) return;
 
     setUpdating(true);
+    let createdClientId = null;
     try {
       // Create a client from the inquiry data
       const now = new Date().toISOString();
@@ -84,14 +85,20 @@ export default function InquiriesPage() {
         email: selectedInquiry.email,
         phone: selectedInquiry.phone || null,
         interested_packages: selectedInquiry.interestedPackage || null,
+        additional_services: selectedInquiry.additionalServices || null,
         status: 'PROSPECT',
         updated_at: now,
       });
       if (clientError) throw clientError;
+      createdClientId = client.id;
 
       // Mark the inquiry as converted
       const { error: updateError } = await updateInquiry(selectedInquiry.id, { status: 'CONVERTED' });
-      if (updateError) throw updateError;
+      if (updateError) {
+        // Rollback: soft-delete the orphaned client
+        await deleteClient(createdClientId);
+        throw updateError;
+      }
 
       toast.success(`Inquiry accepted! Client "${client.businessName}" has been created.`);
 
@@ -188,6 +195,11 @@ export default function InquiriesPage() {
                           Interested in: {inquiry.interestedPackage}
                         </p>
                       )}
+                      {inquiry.additionalServices && (
+                        <p className="text-xs text-secondary-600 mt-1">
+                          Add-ons: {inquiry.additionalServices}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Badge className={getStatusColor(inquiry.status)}>{inquiry.status}</Badge>
@@ -226,6 +238,7 @@ export default function InquiriesPage() {
               <button
                 onClick={closeInquiryModal}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close inquiry details"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -290,6 +303,17 @@ export default function InquiriesPage() {
                       <div>
                         <p className="text-xs text-gray-500">Interested In</p>
                         <p className="font-medium text-primary-700">{selectedInquiry.interestedPackage}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedInquiry.additionalServices && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-secondary-100 rounded-lg flex items-center justify-center">
+                        <Sparkles className="w-5 h-5 text-secondary-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Additional Services</p>
+                        <p className="font-medium text-secondary-700">{selectedInquiry.additionalServices}</p>
                       </div>
                     </div>
                   )}

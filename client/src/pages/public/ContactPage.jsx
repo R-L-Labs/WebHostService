@@ -13,8 +13,11 @@ import { Mail } from 'lucide-react';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [packages, setPackages] = useState([]);
   const [selectedPackages, setSelectedPackages] = useState([]);
+  const [selectedAddons, setSelectedAddons] = useState([]);
+  const [addonOtherText, setAddonOtherText] = useState('');
 
   const {
     register,
@@ -26,6 +29,13 @@ export default function ContactPage() {
     resolver: zodResolver(contactFormSchema),
   });
 
+  const ADDITIONAL_SERVICES = [
+    { name: 'Instagram Gallery', price: '+$15/month', description: 'Display your Instagram feed on your site' },
+    { name: 'Jobber Form', price: 'Free', description: 'Embed your existing Jobber booking form' },
+    { name: 'Facebook Reviews', price: 'Contact for pricing', description: 'Show your Facebook reviews on your site' },
+    { name: 'Other', price: '', description: 'Have something else in mind? Let us know' },
+  ];
+
   const togglePackage = (packageName) => {
     setSelectedPackages(prev => {
       const newSelection = prev.includes(packageName)
@@ -36,6 +46,35 @@ export default function ContactPage() {
       setValue('interestedPackage', newSelection.join(', '));
       return newSelection;
     });
+  };
+
+  const toggleAddon = (addonName) => {
+    setSelectedAddons(prev => {
+      const newSelection = prev.includes(addonName)
+        ? prev.filter(a => a !== addonName)
+        : [...prev, addonName];
+
+      // Build the additional services string
+      const services = newSelection.map(s => {
+        if (s === 'Other' && addonOtherText) return `Other: ${addonOtherText}`;
+        return s;
+      });
+      setValue('additionalServices', services.join(', '));
+      return newSelection;
+    });
+  };
+
+  const handleAddonOtherText = (text) => {
+    setAddonOtherText(text);
+    setValue('additionalServicesOther', text);
+    // Update the additional services string with new other text
+    if (selectedAddons.includes('Other')) {
+      const services = selectedAddons.map(s => {
+        if (s === 'Other' && text) return `Other: ${text}`;
+        return s;
+      });
+      setValue('additionalServices', services.join(', '));
+    }
   };
 
   useEffect(() => {
@@ -53,7 +92,13 @@ export default function ContactPage() {
   };
 
   const onSubmit = async (data) => {
+    const now = Date.now();
+    if (now - lastSubmitTime < 30000) {
+      toast.error('Please wait 30 seconds before submitting again.');
+      return;
+    }
     setIsSubmitting(true);
+    setLastSubmitTime(now);
     try {
       // Map camelCase form fields to snake_case database columns
       const inquiryData = {
@@ -62,6 +107,7 @@ export default function ContactPage() {
         phone: data.phone || null,
         business_name: data.businessName || null,
         interested_package: data.interestedPackage || null,
+        additional_services: data.additionalServices || null,
         message: data.message,
         status: 'NEW',
       };
@@ -70,6 +116,8 @@ export default function ContactPage() {
       toast.success("Thank you for your inquiry! We'll get back to you soon.");
       reset();
       setSelectedPackages([]);
+      setSelectedAddons([]);
+      setAddonOtherText('');
     } catch (error) {
       console.error('Error submitting inquiry:', error);
       toast.error(error.message || 'Failed to submit inquiry. Please try again.');
@@ -136,9 +184,11 @@ export default function ContactPage() {
                         {...register('name')}
                         placeholder="Your full name"
                         className="mt-1"
+                        aria-invalid={!!errors.name}
+                        aria-describedby={errors.name ? 'name-error' : undefined}
                       />
                       {errors.name && (
-                        <p className="text-sm text-red-600 mt-1">{errors.name.message}</p>
+                        <p id="name-error" className="text-sm text-red-600 mt-1">{errors.name.message}</p>
                       )}
                     </div>
 
@@ -152,9 +202,11 @@ export default function ContactPage() {
                         {...register('email')}
                         placeholder="your.email@example.com"
                         className="mt-1"
+                        aria-invalid={!!errors.email}
+                        aria-describedby={errors.email ? 'email-error' : undefined}
                       />
                       {errors.email && (
-                        <p className="text-sm text-red-600 mt-1">{errors.email.message}</p>
+                        <p id="email-error" className="text-sm text-red-600 mt-1">{errors.email.message}</p>
                       )}
                     </div>
 
@@ -204,7 +256,7 @@ export default function ContactPage() {
                             <div className="flex-1">
                               <span className="font-medium">{pkg.name}</span>
                               <span className="text-gray-500 ml-2">
-                                - ${parseFloat(pkg.price).toLocaleString()}
+                                — starting at ${parseFloat(pkg.price).toLocaleString()}
                               </span>
                             </div>
                           </label>
@@ -229,6 +281,52 @@ export default function ContactPage() {
                     </div>
 
                     <div>
+                      <Label>Additional Services</Label>
+                      <input type="hidden" {...register('additionalServices')} />
+                      <input type="hidden" {...register('additionalServicesOther')} />
+                      <div className="mt-2 space-y-2">
+                        {ADDITIONAL_SERVICES.map((addon) => (
+                          <div key={addon.name}>
+                            <label
+                              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                selectedAddons.includes(addon.name)
+                                  ? 'border-primary-500 bg-primary-50'
+                                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedAddons.includes(addon.name)}
+                                onChange={() => toggleAddon(addon.name)}
+                                className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                              />
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-medium">{addon.name}</span>
+                                  {addon.price && (
+                                    <span className="text-sm text-gray-500">— {addon.price}</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500">{addon.description}</p>
+                              </div>
+                            </label>
+                            {addon.name === 'Other' && selectedAddons.includes('Other') && (
+                              <div className="ml-7 mt-2">
+                                <Input
+                                  value={addonOtherText}
+                                  onChange={(e) => handleAddonOtherText(e.target.value)}
+                                  placeholder="Please describe what you're looking for..."
+                                  className="text-sm"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">Select any additional services you'd like (optional)</p>
+                    </div>
+
+                    <div>
                       <Label htmlFor="message">
                         Message <span className="text-red-500">*</span>
                       </Label>
@@ -238,9 +336,11 @@ export default function ContactPage() {
                         placeholder="Tell us about your project and what you're looking for..."
                         rows={5}
                         className="mt-1"
+                        aria-invalid={!!errors.message}
+                        aria-describedby={errors.message ? 'message-error' : undefined}
                       />
                       {errors.message && (
-                        <p className="text-sm text-red-600 mt-1">{errors.message.message}</p>
+                        <p id="message-error" className="text-sm text-red-600 mt-1">{errors.message.message}</p>
                       )}
                     </div>
 

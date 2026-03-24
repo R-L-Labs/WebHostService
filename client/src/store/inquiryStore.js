@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export const useInquiryStore = create((set, get) => ({
+export const useInquiryStore = create((set) => ({
   inquiries: [],
   newInquiriesCount: 0,
   totalCount: 0,

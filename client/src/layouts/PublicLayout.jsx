@@ -17,9 +17,17 @@ export default function PublicLayout() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {/* Skip to content */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:text-primary-600 focus:font-medium"
+      >
+        Skip to main content
+      </a>
+
       {/* Navbar */}
       <header className="bg-white shadow-sm sticky top-0 z-50">
-        <nav className="container-custom">
+        <nav className="container-custom" aria-label="Main navigation">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
@@ -89,7 +97,7 @@ export default function PublicLayout() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main id="main-content" className="flex-1">
         <Outlet />
       </main>
 

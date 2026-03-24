@@ -47,7 +47,7 @@ export async function getPayment(id) {
     .is('deleted_at', null)
     .single()
 
-  return { payment: data, error }
+  return { payment: transformPayment(data), error }
 }
 
 /**
@@ -62,7 +62,7 @@ export async function createPayment(data) {
     .select()
     .single()
 
-  return { payment, error }
+  return { payment: transformPayment(payment), error }
 }
 
 /**
@@ -79,7 +79,7 @@ export async function updatePayment(id, data) {
     .select()
     .single()
 
-  return { payment, error }
+  return { payment: transformPayment(payment), error }
 }
 
 /**

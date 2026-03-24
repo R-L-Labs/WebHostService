@@ -6,7 +6,7 @@ import { getUsers } from '../../lib/queries';
 import { resetPassword } from '../../lib/auth';
 import { formatDate } from '../../utils/helpers';
 import { toast } from 'sonner';
-import { KeyRound, Mail } from 'lucide-react';
+import { Mail } from 'lucide-react';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);

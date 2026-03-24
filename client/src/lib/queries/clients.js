@@ -12,6 +12,7 @@ function transformClient(row) {
     website: row.website,
     status: row.status,
     interestedPackages: row.interested_packages,
+    additionalServices: row.additional_services,
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
