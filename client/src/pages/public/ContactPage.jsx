@@ -113,6 +113,26 @@ export default function ContactPage() {
       };
       const { error } = await submitInquiry(inquiryData);
       if (error) throw error;
+
+      // Send email notification via Netlify function
+      try {
+        await fetch('/.netlify/functions/notify-inquiry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            businessName: data.businessName,
+            interestedPackage: data.interestedPackage,
+            additionalServices: data.additionalServices,
+            message: data.message,
+          }),
+        });
+      } catch (emailError) {
+        console.error('Email notification failed:', emailError);
+      }
+
       toast.success("Thank you for your inquiry! We'll get back to you soon.");
       reset();
       setSelectedPackages([]);

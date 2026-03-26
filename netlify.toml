@@ -3,6 +3,9 @@
   publish = "dist"
   command = "npm run build"
 
+[functions]
+  directory = "../netlify/functions"
+
 # Security headers
 [[headers]]
   for = "/*"
@@ -12,6 +15,12 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'"
+
+# Let Netlify functions pass through
+[[redirects]]
+  from = "/.netlify/functions/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
 
 # SPA redirect - all routes to index.html
 [[redirects]]
