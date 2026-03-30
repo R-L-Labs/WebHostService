@@ -31,6 +31,11 @@ export default function ClientsPage() {
   const [selectedAddons, setSelectedAddons] = useState([]);
   const [updatingAddon, setUpdatingAddon] = useState(false);
 
+  // Notes state
+  const [clientNotes, setClientNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesTimeout, setNotesTimeout] = useState(null);
+
   // Payments state
   const [payments, setPayments] = useState([]);
   const [paymentSummary, setPaymentSummary] = useState({ totalPaid: 0, totalPending: 0, count: 0 });
@@ -106,6 +111,7 @@ export default function ClientsPage() {
 
   const openClientModal = (client) => {
     setSelectedClient(client);
+    setClientNotes(client.notes || '');
     fetchPayments(client.id);
     // Initialize selected packages from client's interestedPackages
     const interested = client.interestedPackages ? client.interestedPackages.split(', ').filter(p => p) : [];
@@ -116,7 +122,9 @@ export default function ClientsPage() {
   };
 
   const closeClientModal = () => {
+    if (notesTimeout) clearTimeout(notesTimeout);
     setSelectedClient(null);
+    setClientNotes('');
     setPayments([]);
     setPaymentSummary({ totalPaid: 0, totalPending: 0, count: 0 });
     setShowAddPayment(false);
@@ -270,6 +278,30 @@ export default function ClientsPage() {
       setSelectedAddons(selectedAddons);
     } finally {
       setUpdatingAddon(false);
+    }
+  };
+
+  const handleNotesChange = (value) => {
+    setClientNotes(value);
+    if (notesTimeout) clearTimeout(notesTimeout);
+    const timeout = setTimeout(() => saveNotes(value), 800);
+    setNotesTimeout(timeout);
+  };
+
+  const saveNotes = async (notes) => {
+    if (!selectedClient) return;
+    setSavingNotes(true);
+    try {
+      const { error } = await updateClient(selectedClient.id, { notes });
+      if (error) throw error;
+      const updatedClient = { ...selectedClient, notes };
+      setSelectedClient(updatedClient);
+      setClients(clients.map(c => c.id === selectedClient.id ? updatedClient : c));
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      toast.error('Failed to save notes');
+    } finally {
+      setSavingNotes(false);
     }
   };
 
@@ -714,19 +746,26 @@ export default function ClientsPage() {
               </div>
 
               {/* Notes */}
-              {selectedClient.notes && (
-                <div>
-                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
                     Notes
                   </h4>
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <p className="text-gray-700 whitespace-pre-wrap">{selectedClient.notes}</p>
-                  </div>
+                  {savingNotes && <span className="text-sm text-gray-500">Saving...</span>}
                 </div>
-              )}
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                    <FileText className="w-5 h-5 text-gray-600" />
+                  </div>
+                  <textarea
+                    value={clientNotes}
+                    onChange={(e) => handleNotesChange(e.target.value)}
+                    placeholder="Add notes about this client..."
+                    rows={4}
+                    className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-y"
+                  />
+                </div>
+              </div>
 
               {/* Timestamps */}
               <div className="border-t pt-4">
