@@ -49,16 +49,18 @@ export default function ServicesPage() {
       ? '/month'
       : ' one-time';
 
+    const isMonthly = suffix === '/month';
+
     return (
       <div>
         <div className="flex items-baseline gap-2">
           <span className="text-sm text-gray-500 font-medium">Starting at</span>
           <span className="text-lg text-gray-400 line-through">{formatPrice(pkg.price)}</span>
           <span className="text-4xl font-bold text-green-600">{formatPrice(discountedPrice)}</span>
-          <span className="text-gray-600">{suffix}</span>
+          <span className="text-gray-600">{isMonthly ? '/first month' : suffix}</span>
         </div>
         <span className="inline-block mt-1 text-xs font-semibold text-white bg-orange-500 rounded-full px-2 py-0.5">
-          SAVE {Math.round(FOUNDERS_DISCOUNT * 100)}%
+          SAVE {Math.round(FOUNDERS_DISCOUNT * 100)}%{isMonthly ? ' FIRST MONTH' : ''}
         </span>
       </div>
     );
@@ -85,21 +87,21 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Founders Discount Banner */}
+      {/* Discount Banner */}
       <section className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 py-6">
         <div className="container-custom text-center">
           <div className="flex items-center justify-center gap-3 mb-2">
             <Sparkles className="w-6 h-6 text-white" />
             <h2 className="text-2xl md:text-3xl font-heading font-bold text-white">
-              Founders Discount
+              Spring Discount
             </h2>
             <Sparkles className="w-6 h-6 text-white" />
           </div>
           <p className="text-white/90 text-lg md:text-xl font-semibold">
-            30% off for our first 5 customers — limited spots available!
+            30% off your first month — limited spots available!
           </p>
           <p className="text-white/75 text-sm mt-1">
-            Mention "FOUNDERS" when you contact us to claim your discount.
+            Mention "SPRING" when you contact us to claim your discount.
           </p>
         </div>
       </section>
